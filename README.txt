@@ -47,8 +47,10 @@ perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317lef
 perl change_fastq_header.pl SRR650317_2.fasta SRR650317_2.fa Truseq_SRR650317right
 #MUST-DO#
 
-#3# merge sequences of multiple fasta files
-perl Truseq_merge_unique_fa.pl UNMAP SRR650317_1.fa SRR650317_2.fa
+#3# merge sequences from multiple fasta/fastq files into one fasta file
+perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
+#alternatively, if there are many files to merge, generate a file (named filelist for example) contains the full-path of each file
+perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
 
 #4# build BWA index, using verion 0.73 or higer
 /bin/bwa073a/bwa index /data//iGenome/human/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa

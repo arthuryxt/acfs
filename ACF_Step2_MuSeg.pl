@@ -458,6 +458,7 @@ open OUTf2, ">".$fileout.".S2";
 open OUTfa2, ">".$fileout.".S2.fa";
 open OUTf12, ">".$fileout.".S1.bed12";
 open OUTf22, ">".$fileout.".S2.bed12";
+open OUTerr,">".$fileout."_withN";
 
 my %uniqf;
 my %uniqF;
@@ -827,7 +828,8 @@ foreach my $chr (sort keys %candy) {
 				if ((length($left_seq) ne (4*$Extend + 1))) { next;}
 				my $right_seq=substr($SEQ,($end-2*$Extend-1),(4*$Extend + 1));
 				if ((length($right_seq) ne (4*$Extend + 1)) and ($debug eq 20)) {print join("\t",$a[0],$chr,$start,$end,"right_404"),"\n";next;}
-				if ((length($right_seq) ne (4*$Extend + 1)) ) { next;}
+				if ((length($right_seq) ne (4*$Extend + 1))) { next;}
+				if ((sanity($left_seq) > 0) or (sanity($right_seq) > 0)) { print OUTerr join("\t",@a),"\tsanity_fail\t",$left_seq,"\t",$right_seq,"\n"; next;}
 				my $t=$left_seq;
 				$t=~tr/[atcgATCG]/[TAGCTAGC]/;
 			    my $rc_left_seq=scalar reverse $t;		
@@ -942,6 +944,7 @@ foreach my $chr (sort keys %candy) {
 				my $right_seq=substr($SEQ,($end-2*$Extend-1),(4*$Extend + 1));
 				if (length($right_seq) ne (4*$Extend + 1)) {print join("\t",$a[0],$chr,$start,$end,"right_404"),"\n";next;}
 				if ((length($right_seq) ne (4*$Extend + 1)) and ($debug eq 20)){ next;}
+				if ((sanity($left_seq) > 0) or (sanity($right_seq) > 0)) { print OUTerr join("\t",@a),"\tsanity_fail\t",$left_seq,"\t",$right_seq,"\n"; next;}
 				if ($debug eq 20) { print "R-m+S5\n",$left_seq,"\n",$right_seq,"\n"; }
 				for(my $i=0; $i<=$a[5]+2; $i++) {
 					my $str=uc substr($right_seq,(2*$Extend+1-3 - $i),9);

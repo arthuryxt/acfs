@@ -97,10 +97,10 @@ while(<IN>) {
 	if ($length > 0.8*$readlen) {
 		my $SSR=$Ref{$a[2]}-$exp-$JUN;
 		my $SSL=$Ref{$a[2]}-$exp-$readlen+$JUN;
-		print OUT1 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
+		print OUT1 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR,$a[9]),"\n";
 		if (($stranded eq "no") or ($stranded eq $strand)) {
 			if (($SSL <= $a[3]) and ($a[3] <= $SSR) and ($NM <= 5) and (($mismatch/$readlen) < $ER)) {
-				print OUT2 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
+				print OUT2 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
 			}
 		}
 	}	

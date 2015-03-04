@@ -52,7 +52,7 @@ perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
 #alternatively, if there are many files to merge, generate a file (named filelist for example) contains the full-path of each file
 perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
 
-#4# build BWA index, using verion 0.73 or higer
+#4# build BWA index, using verion 0.73a (support for higher versions will be added soon)
 /bin/bwa073a/bwa index /data//iGenome/human/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa
 
 #5# prepare for annotation

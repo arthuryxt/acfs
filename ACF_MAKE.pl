@@ -23,6 +23,7 @@ my $coverage=0.9;
 my $Junc=6;
 my $ER=0.05;
 my $stranded="no";
+my $pre_defined_circRNA="no";
 # check if all parameters are set
 if (!exists $SPEC{"BWA_folder"}) { die "BWA_folder must by specified in the config_file $filein";}
 if (!exists $SPEC{"BWA_genome_Index"}) { die "BWA_genome_Index must by specified in the config_file $filein";}
@@ -45,6 +46,7 @@ if (exists $SPEC{"Coverage"}) { $coverage=$SPEC{"Coverage"}; }
 if (exists $SPEC{"minSpanJunc"}) { $Junc=$SPEC{"minSpanJunc"}; }
 if (exists $SPEC{"ErrorRate"}) { $ER=$SPEC{"ErrorRate"}; }
 if (exists $SPEC{"Strandness"}) { $stranded=$SPEC{"Strandness"}; }
+if (exists $SPEC{"pre_defined_circle_bed"}) { $pre_defined_circRNA=$SPEC{"pre_defined_circle_bed"}; }
 
 
 my $command="";
@@ -56,7 +58,8 @@ $command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 ".$SPEC{"BWA_g
 print OUT $command,"\n";
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step1.pl unmap.sam unmap.parsed $MAS $coverage";
 print OUT $command,"\n";
-$command="perl ".$SPEC{"ACF_folder"}."/get_selected_fa_from_pool.pl unmap.parsed.UID ".$SPEC{"UNMAP"}." unmap.parsed.UID.fa";
+#$command="perl ".$SPEC{"ACF_folder"}."/get_selected_fa_from_pool.pl unmap.parsed.UID ".$SPEC{"UNMAP"}." unmap.parsed.UID.fa";
+$command="ln -s ".$SPEC{"UNMAP"}." unmap.parsed.UID.fa";
 print OUT $command,"\n";
 print OUT "echo \"Step1 maping_the_unmapped_reads_to_genome Finished\" \n\n\n";
 
@@ -72,8 +75,17 @@ print OUT "echo \"Step2 find_circle_supporting_sequences Finished\" \n\n\n";
 
 print OUT "#Step3\n";
 print OUT "echo \"Step3 define_circle Started\" \n";
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3.pl unmap.parsed.2pp.S3 unmap.parsed.2pp.S2.sum";
-print OUT $command,"\n";
+if ($pre_defined_circRNA eq "no"){
+    $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3.pl unmap.parsed.2pp.S3 unmap.parsed.2pp.S2.sum";
+    print OUT $command,"\n";
+}
+else {
+    $command="perl ".$SPEC{"ACF_folder"}."/get_circRNA_from_bed.pl ".$pre_defined_circRNA;
+    print OUT $command,"\n";
+    $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3.pl unmap.parsed.2pp.S3 unmap.parsed.2pp.S2.sum pre_defined_circRNA.sum";
+    print OUT $command,"\n";
+}
+
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3_MuSeg.pl unmap.parsed.2pp.S3 unmap.parsed.segs.S2";
 print OUT $command,"\n";
 print OUT "echo \"Step3 define_circle Finished\" \n\n\n";

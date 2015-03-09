@@ -85,29 +85,31 @@ perl -e 'print join("\t","UNMAP_expr","UNMAP_expr"),"\n";' >> SPEC_example.txt
 #9# the length of your sequencing reads
 perl -e 'print join("\t","Seq_len","150"),"\n";' >> SPEC_example.txt
 
-# These 11 parameters are optional:
-#10# the minimum distance of a back-splice. The smaller this value, the more likely you can find circles from short exons
+# These 13 parameters are optional:
+#10# the minimum distance of a back-splice (default = 100). The smaller this value, the more likely you can find circles from short exons
 perl -e 'print join("\t","minJump","100"),"\n";' >> SPEC_example.txt
-#11# the maximum distance of a back-splice. The larger this value, the more likely you can find circles from long genes
+#11# the maximum distance of a back-splice (default = 1000000). The larger this value, the more likely you can find circles from long genes
 perl -e 'print join("\t","maxJump","1000000"),"\n";' >> SPEC_example.txt
-#12# the minimum score for the sum of splicing strength at both splice site. A value small than 6 might suggest the circle is not generated from splicing, providing it is true
+#12# the minimum score for the sum of splicing strength at both splice site (default = 10). A value small than 6 might suggest the circle is not generated from splicing, providing it is true
 perl -e 'print join("\t","minSplicingScore","10"),"\n";' >> SPEC_example.txt
-#13# the minimum number of samples that detect any given circle
+#13# the minimum number of samples that detect any given circle (default = 1).
 perl -e 'print join("\t","minSampleCnt","1"),"\n";' >> SPEC_example.txt
-#14# the minimum number of reads (from all samples) that detect any given circle
+#14# the minimum number of reads (from all samples) that detect any given circle (default = 2).
 perl -e 'print join("\t","minReadCnt","2"),"\n";' >> SPEC_example.txt
-#15# the minimum mapping quality of any given sequence. A value larger than 20 is recommended.
+#15# the minimum mapping quality of any given sequence (default = 30). A value larger than 20 is recommended.
 perl -e 'print join("\t","minMappingQuality","30"),"\n";' >> SPEC_example.txt
-#16# the minimum percentage of any given read is aligned. The larger the better.
+#16# the minimum percentage of any given read is aligned (default = 0.9). The larger the better.
 perl -e 'print join("\t","Coverage","0.9"),"\n";' >> SPEC_example.txt
-#17# the minimum number of bases reach beyond the back-splice-site. The larger the more better.
+#17# the minimum number of bases reach beyond the back-splice-site (default = 6). The larger the less likely of false-positive.
 perl -e 'print join("\t","minSpanJunc","6"),"\n";' >> SPEC_example.txt
-#18# the maximum error rate for re-alignment. The smaller the more better.
+#18# the maximum error rate for re-alignment (default = 0.05). The smaller the more better.
 perl -e 'print join("\t","ErrorRate","0.05"),"\n";' >> SPEC_example.txt
-#19# the strand information of sequencing. "+" if the reads are sense to transcripts; "-" if the reads are anti-sense to transcripts; "no" if the sequencing is un-stranded.
+#19# the strand information of sequencing (default = "no"). "+" if the reads are sense to transcripts; "-" if the reads are anti-sense to transcripts; "no" if the sequencing is un-stranded.
 perl -e 'print join("\t","Strandness","no"),"\n";' >> SPEC_example.txt
-#20# the number of threads used for BWA alignment.
+#20# the number of threads used for BWA alignment (default = 30).
 perl -e 'print join("\t","Thread","30"),"\n";' >> SPEC_example.txt
+#21# pre-defined circle annotation in bed6 or bed12 format (default = "no", replace the file name to include annotated circRNAs)
+perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
 
 
 # make Pipeline Bash file
@@ -161,7 +163,7 @@ perl get_split_exon_border_biotype_genename.pl /data/iGenome/human/Ensembl/GRCh3
 
 
 #2# generate parameter file
-perl -e 'print join("\t","BWA_folder","/home/bin/bwa037a/"),"\n";' > SPEC_example.txt
+perl -e 'print join("\t","BWA_folder","/home/bin/bwa073a/"),"\n";' > SPEC_example.txt
 perl -e 'print join("\t","BWA_genome_Index","/data/iGenome/human/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","BWA_genome_folder","/data/iGenome/human/Ensembl/GRCh37/Sequence/Chromosomes/"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","ACF_folder","/home/ACF/"),"\n";' >> SPEC_example.txt
@@ -171,6 +173,7 @@ perl -e 'print join("\t","UNMAP","UNMAP"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","UNMAP_expr","UNMAP_expr"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","Seq_len","76"),"\n";' >> SPEC_example.txt
 
+# if you don't want to change the default parameters, you don't need to run the belowing command-lines.
 perl -e 'print join("\t","Thread","30"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","minJump","100"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","maxJump","1000000"),"\n";' >> SPEC_example.txt
@@ -181,7 +184,8 @@ perl -e 'print join("\t","minMappingQuality","20"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","Coverage","0.9"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","minSpanJunc","6"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","ErrorRate","0.05"),"\n";' >> SPEC_example.txt
-perl -e 'print join("\t","Strandness","+"),"\n";' >> SPEC_example.txt
+perl -e 'print join("\t","Strandness","-"),"\n";' >> SPEC_example.txt
+perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
 
 
 #3# generate pipeline
@@ -200,3 +204,11 @@ circle_candidates_MEA.expr
 circle_candidates_CBR.expr
 circle_candidates_MuS.expr
 ========== Tutorial ==========
+
+
+
+========== Change Log ==========
+Update on 2015-03-09 :
+   Now ACF can include pre-defined circRNA annotations from a bed6 or bed12 file (and their authenticity will be checked, so please adjust (minJump, maxJump, minSplicingScore) accordingly ).
+   This way, you can both predict novel circRNAs in your data and estimate the abundance of annotated circRNAs.
+========== Change Log ==========

@@ -1,0 +1,3 @@
+How to Find Your CircRNAs
+
+Circular RNAs (cRNAs) are an old (first identified in 1993) class of cellular RNAs that possess neither 5' nor 3' ends. They are, as a group, lowly abundant and stable. As the majority of them arise from protein coding genes, presumably via "head-to-tail" splicing, they are thought to be biological relevant and one cRNA has been shown to be functionally important to brain. Yet many questions still lingers, like, How many cRNAs are out there? What's there abundance? How are they produced? Do they function, as a group or individually, actively in the regulatory processes? The pipeline is designed to use high-throughput sequencing data to answer the first two questions.

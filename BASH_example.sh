@@ -47,7 +47,7 @@ echo "Step5 caliberate_the_expression_of_circles Started"
 perl /home/username/ACF//ACF_Step5.pl circle_candidates_MEA.sam circle_candidates_MEA.CL circle_candidates_MEA.p1 76 6 0.05 - 
 perl /home/username/ACF//ACF_Step5.pl circle_candidates_CBR.sam circle_candidates_CBR.CL circle_candidates_CBR.p1 76 6 0.05 - 
 perl /home/username/ACF//ACF_Step5.pl circle_candidates_MuS.sam circle_candidates_MuS.CL circle_candidates_MuS.p1 76 6 0.05 - 
-perl /home/username/ACF//ACF_Step5m.pl unmap.parsed.tmp circle_candidates_MEA.p1.2 circle_candidates_MuS.p1.2 circle_candidates_CBR.p1.2 UNMAP_expr 30
+perl /home/username/ACF//ACF_Step5m.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_MuS circle_candidates_CBR UNMAP_expr 30
 echo "Step5 caliberate_the_expression_of_circles Finished" 
 
 

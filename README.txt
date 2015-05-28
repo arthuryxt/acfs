@@ -53,6 +53,7 @@ perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
 perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
 
 #4# build BWA index, using verion 0.73a (support for higher versions will be added soon)
+#   please use the included package OR download at http://sourceforge.net/projects/bio-bwa/files/bwa-0.7.3a.tar.bz2/download
 /bin/bwa073a/bwa index /data//iGenome/human/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa
 
 #5# prepare for annotation

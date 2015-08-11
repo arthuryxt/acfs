@@ -18,7 +18,7 @@ by Arthur 2013-11-01
 ========== NOTE ==========
 
 
-========= pipeline ========
+========= pipeline description ========
 1. Map all Tophat2-unmapped-reads to genome using BWA, seperate :
     1-part
     2-part-same-chromosome-same-strand  => true positive
@@ -36,7 +36,7 @@ by Arthur 2013-11-01
 4. Build gtf and pseudo-transcript for results from step3
 5. Map all Tophat2-unmapped-reads to pseudo-transcipts and estimate the abundance of circRNAs
 6. Generate bed track for visulization
-========= pipeline ========
+========= pipeline description ========
 
 
 ========== 0. pre-process ==========

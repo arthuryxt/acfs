@@ -5,15 +5,16 @@
 3. Fasta/q header (such as ">Default_header") MUST be converted to ACF style so that multiple samples can be processes in one run.
    Change ">Default_header" into ">Truseq_sample_Default_header", where "sample" are the names of your samples.
    Make sure there is No underline within the sample name.
-   e.g. ">Truseq_ctrl.1_Default_header" and ">Truseq_AGO2KO.1_Default_header" are OK; ">Truseq_ctrl_1_Default_header" is BAD because ACF will record "ctrl" instead of "ctrl_1".
+   e.g. ">Truseq_ctrl.1_Default_header" and ">Truseq_AGO2KO.1_Default_header" are OK; ">Truseq_ctrl_1_Default_header" is BAD because ACF will register "ctrl" instead of "ctrl_1".
 4. Assume reads are obtained by Directional Sequencing, and the reads are assumed to be reverse-complementary to mRNAs.
    So  if the reads are actually sense (the same 5'->3' direction as mRNA), please reverse-complement all reads.
    And if the reads are actually stransless or pair-ended, please run in parallel original reads and reverse-complemented reads.
    No pair-end information is used, as the exact junction-site must be supported by a single read. Seeing is believing.
-5. Pipeline through ACF_MAKE.pl is highly recommended. To see the arguments needed in each perl script, simply run the script without any arguments.
+5. Pipelining through ACF_MAKE.pl is highly recommended. To see the arguments needed in each perl script, simply run the script without any arguments.
 6. Splicing Strength module is adpoted from MaxEnt module from here : http://genes.mit.edu/burgelab/maxent/download/. Many thanks to Christoph Burge lab.
 7. For non-commercial purposes the code is released under the General Public License (version 3). See the file LICENSE for more detail. If you are interested in commercial use of this software contact the author.
-by arthur 2013-11-01
+8. Please kindly cite the following paper : Nat Neurosci 2015 Apr;18(4):603-10 [PMID: 25714049]
+by Arthur 2013-11-01
 ========== NOTE ==========
 
 
@@ -147,23 +148,34 @@ circle_candidates_MuS.expr
 
 
 ========== Tutorial ==========
-#1# pre-processing
+#_1_# pre-processing for sequencing reads
+
+#1A# for single-end RNA-Seq only
+wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852576/SRR1772415/SRR1772415.sra
+fastq-dump.2 --fasta 0 --split-files SRR1772415.sra
+perl change_fastq_header.pl SRR1772415.fasta SRR1772415.fa Truseq_brain13wks1
+perl Truseq_merge_unique_fa.pl UNMAP newid SRR1772415.fa
+# Note this sample is from mouse, therefore mouse annotation should be used.
+
+#1B# for paired-end RNA-Seq only
 wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX218%2FSRX218203/SRR650317/SRR650317.sra
 fastq-dump.2 --fasta 0 --split-files SRR650317.sra
-
-perl Truseq_merge_unique_fa.pl human_unmap SRR650317_1.fasta SRR650317_2.fasta
-ln -s human_unmap UNMAP1
-ln -s human_unmap_expr UNMAP_expr1
+perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317left
+perl change_fastq_header.pl SRR650317_2.fasta SRR650317_2.fa Truseq_SRR650317right
+perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
 # As acfs require sequencing reads to be stranded, reverse complement all reads to fake strandness
 perl -ne 'chomp; if(m/^>/){s/^>//; print ">rc".$_,"\n";}else{my $t=$_; $t=~tr/[ATCG]/[TAGC]/; my $r=scalar reverse $t; print $r,"\n";}' UNMAP1 > UNMAP1.rc
 cat UNMAP1 UNMAP1.rc > UNMAP
 perl -e 'open IN,"UNMAP_expr1"; my $line=<IN>; print $line; while(<IN>){chomp; my @a=split("\t",$_); print join("\t",@a),"\n"; $a[0]="rc".$a[0]; print join("\t",@a),"\n";}' > UNMAP_expr
+# Note this sample is from human, therefore human annotation should be used.
 
+
+#_2_# prepare for annotation
 # use the gtf provided in iGenome package    or   get Homo_sapiens.GRCh37.71.gtf from  ftp://ftp.ensembl.org/pub/current_gtf/
 perl get_split_exon_border_biotype_genename.pl /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/genes.gtf /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/Homo_sapiens.GRCh37.71_split_exon.gtf
 
 
-#2# generate parameter file
+#_3_# generate parameter file
 perl -e 'print join("\t","BWA_folder","/home/bin/bwa073a/"),"\n";' > SPEC_example.txt
 perl -e 'print join("\t","BWA_genome_Index","/data/iGenome/human/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","BWA_genome_folder","/data/iGenome/human/Ensembl/GRCh37/Sequence/Chromosomes/"),"\n";' >> SPEC_example.txt
@@ -189,19 +201,21 @@ perl -e 'print join("\t","Strandness","-"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
 
 
-#3# generate pipeline
+#_4_# generate pipeline
 perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
 
 
-#4# get your circRNAs
+#_5_# get your circRNAs
 bash BASH_example.sh
 
 
-#5# take a look at these :
+#_6_# take a look at these :
+# bed12 files for visualization of circRNAs, such as using G-Browser
 circle_candidates_MEA.bed12      # high-confident circles that cross annotated boundarys of exon(s)
 circle_candidates_CBR.bed12      # low-confident circles (could still be true)
 circle_candidates_MuS.bed12      # circles originated from very short exons [therefore might be a bit more difficult to validate]
-circle_candidates_MEA.expr
+# expression(readcounts) table for circRNAs, with circRNAs in rows and samples in columns
+circle_candidates_MEA.expr       
 circle_candidates_CBR.expr
 circle_candidates_MuS.expr
 ========== Tutorial ==========
@@ -212,4 +226,6 @@ circle_candidates_MuS.expr
 Update on 2015-03-09 :
    Now ACF can include pre-defined circRNA annotations from a bed6 or bed12 file (and their authenticity will be checked, so please adjust (minJump, maxJump, minSplicingScore) accordingly ).
    This way, you can both predict novel circRNAs in your data and estimate the abundance of annotated circRNAs.
+Update on 2015-08-11 :
+   Corrected Tutorial section in README, thanks to Zol.
 ========== Change Log ==========

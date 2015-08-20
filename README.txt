@@ -150,14 +150,14 @@ circle_candidates_MuS.expr
 ========== Tutorial ==========
 #_1_# pre-processing for sequencing reads
 
-#1A# for single-end RNA-Seq only
+#1A# for single-end RNA-Seq only/ (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
 wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852576/SRR1772415/SRR1772415.sra
 fastq-dump.2 --fasta 0 --split-files SRR1772415.sra
 perl change_fastq_header.pl SRR1772415.fasta SRR1772415.fa Truseq_brain13wks1
 perl Truseq_merge_unique_fa.pl UNMAP newid SRR1772415.fa
 # Note this sample is from mouse, therefore mouse annotation should be used.
 
-#1B# for paired-end RNA-Seq only
+#1B# for paired-end RNA-Seq only. (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
 wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX218%2FSRX218203/SRR650317/SRR650317.sra
 fastq-dump.2 --fasta 0 --split-files SRR650317.sra
 perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317left
@@ -168,6 +168,15 @@ perl -ne 'chomp; if(m/^>/){s/^>//; print ">rc".$_,"\n";}else{my $t=$_; $t=~tr/[A
 cat UNMAP1 UNMAP1.rc > UNMAP
 perl -e 'open IN,"UNMAP_expr1"; my $line=<IN>; print $line; while(<IN>){chomp; my @a=split("\t",$_); print join("\t",@a),"\n"; $a[0]="rc".$a[0]; print join("\t",@a),"\n";}' > UNMAP_expr
 # Note this sample is from human, therefore human annotation should be used.
+
+#1C# for single-end and paired-end RNA-Seq unmapped reads.
+# First align raw RNA-Seq reads to some reference with tools (such as Bowtie/BWA/STAR), obtain a SAM file containing all unmapped reads.
+# For example if you choose Tophat, please convert <unmapped.bam> to <unmapped.sam>
+# Then run the following command:
+perl convert_unmapped_SAM_to_fa_for_acfs.pl unmapped.sam newName newNAME.fa
+# where <newName> is the new sample ID that is used to change the fasta/fastq header to ACF style. It could be "Ctrl12" or "TreatA.rep2", your choice. Just remember, there should be NO underscore as "_" in it.
+# and <newNAME.fa> is the name of the converted file. Name it whatever you like.
+perl Truseq_merge_unique_fa.pl UNMAP newid newNAME.fa
 
 
 #_2_# prepare for annotation
@@ -228,4 +237,6 @@ Update on 2015-03-09 :
    This way, you can both predict novel circRNAs in your data and estimate the abundance of annotated circRNAs.
 Update on 2015-08-11 :
    Corrected Tutorial section in README, thanks to Zol.
+Update on 2015-08-20 :
+   Add support for paired-end reads.
 ========== Change Log ==========

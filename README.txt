@@ -1,4 +1,4 @@
-========== NOTE ==========
+========== 0. NOTE ==========
 0. Contact arthur.yxt@gmail.com
 1. ACF = Arthurian Circle Finder
 2. ACF takes fasta and fastq, though the quality information is NOT used.
@@ -15,10 +15,13 @@
 7. For non-commercial purposes the code is released under the General Public License (version 3). See the file LICENSE for more detail. If you are interested in commercial use of this software contact the author.
 8. Please kindly cite the following paper : Nat Neurosci 2015 Apr;18(4):603-10 [PMID: 25714049]
 by Arthur 2013-11-01
-========== NOTE ==========
+========== 0. NOTE ==========
 
 
-========= pipeline description ========
+Scroll down to section "6. Example" for a real-world example.
+
+
+========= 1. pipeline description ========
 1. Map all Tophat2-unmapped-reads to genome using BWA, seperate :
     1-part
     2-part-same-chromosome-same-strand  => true positive
@@ -36,10 +39,10 @@ by Arthur 2013-11-01
 4. Build gtf and pseudo-transcript for results from step3
 5. Map all Tophat2-unmapped-reads to pseudo-transcipts and estimate the abundance of circRNAs
 6. Generate bed track for visulization
-========= pipeline description ========
+========= 1. pipeline description ========
 
 
-========== 0. pre-process ==========
+========== 2. pre-process ==========
 #1# copy folders "CB_splice" and "ACF_code" to local server
 
 #2# Change fasta/fastq header format
@@ -52,6 +55,7 @@ perl change_fastq_header.pl SRR650317_2.fasta SRR650317_2.fa Truseq_SRR650317rig
 perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
 #alternatively, if there are many files to merge, generate a file (named filelist for example) contains the full-path of each file
 perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
+# the aggregated fasta file "UNMAP" will be generated together with the readcount file "UNMAP_expr"
 
 #4# build BWA index, using verion 0.73a (support for higher versions will be added soon)
 #   please use the included package OR download at http://sourceforge.net/projects/bio-bwa/files/bwa-0.7.3a.tar.bz2/download
@@ -60,11 +64,11 @@ perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
 #5# prepare for annotation
 # use the gtf file from iGenome package    or    download ensembl gtf here : ftp://ftp.ensembl.org/pub/current_gtf/
 perl get_split_exon_border_biotype_genename.pl /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/genes.gtf /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/Homo_sapiens.GRCh37.71_split_exon.gtf
-========== 0. pre-process ==========
+========== 2. pre-process ==========
 
 
 
-========== 1. How_to_Find_Your_Circles ==========
+========== 3. How_to_Find_Your_Circles ==========
 # make tab-delimited SPEC file
 # These 9 parameters are mandatory :
 
@@ -110,22 +114,18 @@ perl -e 'print join("\t","ErrorRate","0.05"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","Strandness","no"),"\n";' >> SPEC_example.txt
 #20# the number of threads used for BWA alignment (default = 30).
 perl -e 'print join("\t","Thread","30"),"\n";' >> SPEC_example.txt
-#21# pre-defined circle annotation in bed6 or bed12 format (default = "no", replace the file name to include annotated circRNAs)
+#21# pre-defined circle annotation in bed6 or bed12 format (default = "no", to increase sensitivity for lowly expressed circRNAs please include bed12 files of annotated one, e.g. merge the bed files from GSE61991)
 perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
-
 
 # make Pipeline Bash file
 perl ~/ACF/ACF_MAKE.pl SPEC_example.txt BASH_example.sh
 
-
 # find circles
 bash BASH_example.sh
-========== 1. How_to_Find_Your_Circles ==========
+========== 3. How_to_Find_Your_Circles ==========
 
 
-
-
-========== 2. How_to_Visulize_Your_Circles ==========
+========== 4. How_to_Visulize_Your_Circles ==========
 # circles are stored in three files:
 circle_candidates_MEA.bed12
 circle_candidates_CBR.bed12
@@ -139,22 +139,17 @@ circle_candidates_MEA.expr
 circle_candidates_CBR.expr
 circle_candidates_MuS.expr
 # the second column denote the name of the gene from which this circRNA is derived 
-========== 2. How_to_Visulize_Your_Circles ==========
+========== 4. How_to_Visulize_Your_Circles ==========
 
 
-
-
-
-
-
-========== Tutorial ==========
+========== 5. Tutorial ==========
 #_1_# pre-processing for sequencing reads
 
 #1A# for single-end RNA-Seq only/ (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
-wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852576/SRR1772415/SRR1772415.sra
-fastq-dump.2 --fasta 0 --split-files SRR1772415.sra
-perl change_fastq_header.pl SRR1772415.fasta SRR1772415.fa Truseq_brain13wks1
-perl Truseq_merge_unique_fa.pl UNMAP newid SRR1772415.fa
+wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852583/SRR1772422/SRR1772422.sra
+fastq-dump.2 --fasta 0 --split-files SRR1772422.sra
+perl change_fastq_header.pl SRR1772422.fasta SRR1772422.fa Truseq_HippoSyn
+perl Truseq_merge_unique_fa.pl UNMAP newid SRR1772422.fa
 # Note this sample is from mouse, therefore mouse annotation should be used.
 
 #1B# for paired-end RNA-Seq only. (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
@@ -178,11 +173,9 @@ perl convert_unmapped_SAM_to_fa_for_acfs.pl unmapped.sam newName newNAME.fa
 # and <newNAME.fa> is the name of the converted file. Name it whatever you like.
 perl Truseq_merge_unique_fa.pl UNMAP newid newNAME.fa
 
-
 #_2_# prepare for annotation
 # use the gtf provided in iGenome package    or   get Homo_sapiens.GRCh37.71.gtf from  ftp://ftp.ensembl.org/pub/current_gtf/
 perl get_split_exon_border_biotype_genename.pl /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/genes.gtf /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/Homo_sapiens.GRCh37.71_split_exon.gtf
-
 
 #_3_# generate parameter file
 perl -e 'print join("\t","BWA_folder","/home/bin/bwa073a/"),"\n";' > SPEC_example.txt
@@ -209,14 +202,11 @@ perl -e 'print join("\t","ErrorRate","0.05"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","Strandness","-"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
 
-
 #_4_# generate pipeline
 perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
 
-
 #_5_# get your circRNAs
 bash BASH_example.sh
-
 
 #_6_# take a look at these :
 # bed12 files for visualization of circRNAs, such as using G-Browser
@@ -227,8 +217,27 @@ circle_candidates_MuS.bed12      # circles originated from very short exons [the
 circle_candidates_MEA.expr       
 circle_candidates_CBR.expr
 circle_candidates_MuS.expr
-========== Tutorial ==========
+========== 5. Tutorial ==========
 
+
+========== 6. Example ==========
+1) DIY from scratch
+Let's assume you have downloaded SRR1772422.sra (It's a single-end RNA-Seq from the mouse hippocampus synaptosome sample, read-length=101)
+All reads are aligned to mouse genome (and transcriptome) using Tophat2.
+All unmapped reads are extracted from "unmapped.bam" into "unmapped.fasta".
+2) Alternatively, you can unzip "test.tar.gz" and use the "unmapped.fasta" directly. To save space, only circRNA supporting reads are included here.
+3) change fasta header
+perl change_fastq_header.pl unmapped.fasta unmapped.fa Truseq_F4
+4) make aggregated file
+perl Truseq_merge_unique_fa.pl UNMAP newid unmapped.fa
+5) locate the acfs-version of annotation. (Otherwise, please refer to Point 5 in section "2. pre-process")
+6) generate parameter file. (Please refer to Point-3 in section "5. Tutorial")
+7) generate pipeline
+perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
+8) identify circRNAs
+bash BASH_example.sh
+9) the newly generated "circle_candidates_???.expr" and "circle_candidates_???.bed12" should be the same as the ones with "old_" prefix
+========== 6. Example ==========
 
 
 ========== Change Log ==========
@@ -236,7 +245,10 @@ Update on 2015-03-09 :
    Now ACF can include pre-defined circRNA annotations from a bed6 or bed12 file (and their authenticity will be checked, so please adjust (minJump, maxJump, minSplicingScore) accordingly ).
    This way, you can both predict novel circRNAs in your data and estimate the abundance of annotated circRNAs.
 Update on 2015-08-11 :
-   Corrected Tutorial section in README, thanks to Zol.
+   Corrected the Tutorial section in README, thanks to Zol.
 Update on 2015-08-20 :
-   Add support for paired-end reads.
+   Added support for paired-end reads.
+Update on 2015-09-17 :
+   Added a small real-world example.
+Expecting a much faster standalone version soon...
 ========== Change Log ==========

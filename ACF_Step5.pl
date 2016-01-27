@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-die "Usage: $0  \"BWA_sam\"   \"ref.fa\"    \"output\"    \"\(optional\) expand\"   \"\(optional\) Junc\"  \"\(optional\) NM==5%\"   \"\(optional\)stranded\" " if (@ARGV < 3);
+die "Usage: $0  \"BWA_sam\"   \"ref.fa\"    \"output\"    \"\(optional\) expand\"   \"\(optional\) Junc\"  \"\(optional\) NM==5%\"   \"\(optional\)stranded\"  \(debug == 1\)" if (@ARGV < 3);
 # to estimate the expresison of circs after remap to pseudo-transcripts
 my $filein1=$ARGV[0];
 my $filein2=$ARGV[1];
@@ -18,6 +18,8 @@ if(scalar(@ARGV) > 6) {
 		die "stranded parameter accept only + or -, as reads should be mapped to sense or antisense of mRNA transcripts respectively. Leave this option when the sequencing is un-stranded."
 	}
 }
+my $debug=0;
+if(scalar(@ARGV) > 7) {$debug=$ARGV[7];}
 
 my %Ref;
 open IN2,$filein2;
@@ -47,16 +49,19 @@ while(<IN>) {
     my @CIGAR_va=($a[5]=~m/\d+/g);
     my $start=0;
     my $length=0;
-    my $NM=0;
+    my $NM=0;		# aligned edit-distance
     my $Nr=scalar(@CIGAR_op);
     my $readlen=length($a[9]);
-	my $mismatch=0;
+	my $mismatch=0;	# full-read edit-distance
 	my $exp=$expand;
 	if ($Ref{$a[2]} < 2*$expand) { $exp=int($Ref{$a[2]}/2); }
-	for(my $i=11; $i<$Nr; $i++) {
+	for(my $i=11; $i<scalar(@a); $i++) {
+		if ($debug > 0 ) {print $a[$i],"\n";}
 		if ($a[$i]=~/NM/) {
 			my @tmp=split(/\:/,$a[$i]);
+			if ($debug > 0 ) {print $a[$i],"\n";}
 			$mismatch=$tmp[-1];
+			$NM=$tmp[-1];
 			last;
 		}
 	}
@@ -72,7 +77,7 @@ while(<IN>) {
         }
 		for(my $i=0; $i<$Nr; $i++){
 		    if ($CIGAR_op[$i] eq "S") {
-				$NM+=$CIGAR_va[$i];
+				#$NM+=$CIGAR_va[$i];
 				$mismatch+=$CIGAR_va[$i];
 		    }
 		}
@@ -89,7 +94,7 @@ while(<IN>) {
         }
 		for(my $i=$Nr-1; $i>=0; $i--){
 		    if ($CIGAR_op[$i] eq "S") {
-				$NM+=$CIGAR_va[$i];
+				#$NM+=$CIGAR_va[$i];
 				$mismatch+=$CIGAR_va[$i];
 		    }
 		}
@@ -100,7 +105,20 @@ while(<IN>) {
 		print OUT1 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR,$a[9]),"\n";
 		if (($stranded eq "no") or ($stranded eq $strand)) {
 			if (($SSL <= $a[3]) and ($a[3] <= $SSR) and ($NM <= 5) and (($mismatch/$readlen) < $ER)) {
-				print OUT2 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
+				my $dist1=$a[3] - $SSL;
+				my $dist2=$SSR - $a[3];
+				my $dist=$dist1 < $dist2 ? $dist1 : $dist2;
+				my $JNM=0;
+				# should take CIGAR+MD signal here,
+				$JNM=$mismatch;
+				if ($dist < (1+$JUN)) {
+					if ($JNM eq 0) {
+						print OUT2 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
+					}
+				}
+				else {
+					print OUT2 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR),"\n";
+				}
 			}
 		}
 	}	

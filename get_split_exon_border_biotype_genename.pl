@@ -58,6 +58,20 @@ foreach my $id (keys %uniq) {
             }
         }
     }
+    if ($debug) {
+        my $tmp="";
+        foreach my $i (sort{$a <=> $b} keys %tmp) {
+            if ($tmp eq "") {$tmp=$i."\t".$tmp{$i};}
+            else {$tmp=$tmp."\n".$i."\t".$tmp{$i}}
+        }
+        print "tmp:\n",$tmp,"\n";
+        $tmp="";
+        foreach my $i (sort{$a <=> $b} keys %End) {
+            if ($tmp eq "") {$tmp=$i."\t".$End{$i};}
+            else {$tmp=$tmp."\n".$i."\t".$End{$i}}
+        }
+        print "End:\n",$tmp,"\n";
+    }
     
     my @border=();
     my $Nr=0;
@@ -67,27 +81,29 @@ foreach my $id (keys %uniq) {
         if ($debug) { print join("\t",$Nr,$last,$pos),"\n"; }
         if ($last eq -1) { $last=$pos; }
         else {
-            if (exists $End{$last}) {
-                if ($End{$last} > 1) {
-                    if ($tmp{$pos} eq 2) {
+            if (exists $End{$last}) {   # $last could be a right_border, therefore $pos could be a left_border
+                if ($debug) {print $tmp{$last},"\t",$End{$last},"\t",$tmp{$pos},"\n";}
+                if ($End{$last} > 1) {  # $last is middle_border
+                    if ($tmp{$pos} eq 2) {  # $pos is a left_border
                         my $p5=($last+1);
                         my $p3=($pos-1);
                         if ($p5 <= $p3) { $border[$Nr]=$p5."\t".$p3; $Nr++; }
                     }
-                    else {
+                    else { 
                         my $p5=($last+1);
                         my $p3=($pos);
                         if ($p5 <= $p3) { $border[$Nr]=$p5."\t".$p3; $Nr++; }
                     }
                 }
             }
-            else {
-                if ($tmp{$pos} eq 2) {
+            else {  # $last is a left_border; and $pos could be a right_border
+                if ($debug) {print $tmp{$last},"\tNA\t",$tmp{$pos},"\n";}
+                if ($tmp{$pos} eq 2) {  # $pos is a left_border, minus 1 to prepare for the adjacent exon
                     my $p5=($last);
                     my $p3=($pos-1);
                     if ($p5 <= $p3) { $border[$Nr]=$p5."\t".$p3; $Nr++; }
                 } 
-                else {
+                else {  # $pos is a right_border
                     my $p5=($last);
                     my $p3=($pos);
                     if ($p5 <= $p3) { $border[$Nr]=$p5."\t".$p3; $Nr++; }
@@ -95,7 +111,14 @@ foreach my $id (keys %uniq) {
             }
             $last=$pos;
         }
+        if (($debug) and ($Nr > 0)){
+            my $tmp=$border[0];
+            for(my $i=1; $i<$Nr; $i++) { $tmp=$tmp."\t".$border[$i];}
+            print $tmp,"\n";
+        }
     }
+    if ($debug) {print $tmp{$last},"\t",$End{$last},"\n";}
+    if (($tmp{$last} eq 2) and ($End{$last} eq 1)) { $border[$Nr]=$last."\t".$last; $Nr++; }
     
     my @a=split("\t",$id);
     my $start_g=-1;

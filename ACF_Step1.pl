@@ -40,7 +40,20 @@ while(<IN>) {
         $uniq{$a[0]}=1;
         my $strand="+";
         if ($a[1] eq 16) {$strand="-";}
+        my $info="";
         my @d=split(/\:/,$a[11]);
+        if (scalar(@a) > 14) {
+            my @b=split(/\:/,$a[14]);
+            my @c=split(/\;/,$b[2]);
+            $info=join("\t",join("\,",$a[2],$strand.$a[3],$a[5],$a[4],$d[2]),@c);
+        }
+        else {
+            $info=join("\t",join("\,",$a[2],$strand.$a[3],$a[5],$a[4],$d[2]));
+        }
+        if ($info =~/MT/) {
+            print OUTMT join("\t",$a[0],$Len,$info),"\n";
+            next;
+        }
         if(scalar(@a) <= 14){
             my @CIGAR_op=($a[5]=~m/[MSID]/g); 
             my @CIGAR_va=($a[5]=~m/\d+/g);
@@ -68,17 +81,10 @@ while(<IN>) {
                 }
             }
             print OUT1 join("\t",$a[0],$Len,$start,$length,$d[2],$a[2],$strand,$a[3],$a[4]),"\n";
-            next;
-        }
-        my @b=split(/\:/,$a[14]);
-        my @c=split(/\;/,$b[2]);
-        my $info=join("\t",join("\,",$a[2],$strand.$a[3],$a[5],$a[4],$d[2]),@c);
-        if ($info =~/MT/) {
-            print OUTMT join("\t",$a[0],$Len,$info),"\n";
+            print OUT join("\t",$a[0],$Len,$info),"\n";
             next;
         }
         print OUT join("\t",$a[0],$Len,$info),"\n";
-        
         # process $info
         my %anno;
         my %Chr;

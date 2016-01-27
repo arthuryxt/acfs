@@ -52,6 +52,7 @@ if (exists $SPEC{"pre_defined_circle_bed"}) { $pre_defined_circRNA=$SPEC{"pre_de
 my $command="";
 open(OUT, ">".$fileout) or die "Cannot open output_sh file $fileout";
 print OUT "#!/bin/bash\n\n";
+print OUT "date\n";
 print OUT "#Step1\n";
 print OUT "echo \"Step1 maping_the_unmapped_reads_to_genome Started\" \n";
 $command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 ".$SPEC{"BWA_genome_Index"}." ".$SPEC{"UNMAP"}." \> unmap.sam";
@@ -65,6 +66,7 @@ print OUT "echo \"Step1 maping_the_unmapped_reads_to_genome Finished\" \n\n\n";
 
 
 print OUT "#Step2\n";
+print OUT "date\n";
 print OUT "echo \"Step2 find_circle_supporting_sequences Started\" \n";
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step2.pl ".$SPEC{"CBR_folder"}."/ unmap.parsed.2pp.S1 ".$SPEC{"BWA_genome_folder"}."/ unmap.parsed.2pp.S2";
 print OUT $command,"\n";
@@ -74,6 +76,7 @@ print OUT "echo \"Step2 find_circle_supporting_sequences Finished\" \n\n\n";
 
 
 print OUT "#Step3\n";
+print OUT "date\n";
 print OUT "echo \"Step3 define_circle Started\" \n";
 if ($pre_defined_circRNA eq "no"){
     $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3.pl unmap.parsed.2pp.S3 unmap.parsed.2pp.S2.sum";
@@ -88,12 +91,15 @@ else {
 
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3_MuSeg.pl unmap.parsed.2pp.S3 unmap.parsed.segs.S2";
 print OUT $command,"\n";
+$command="cat unmap.parsed.2pp.S3 unmap.parsed.segs.S2.novel2 > unmap.parsed.2pp.S4";
+print OUT $command,"\n";
 print OUT "echo \"Step3 define_circle Finished\" \n\n\n";
 
 
 print OUT "#Step4\n";
+print OUT "date\n";
 print OUT "echo \"Step4 annotate_select_and_make_pseudo_sequences_for_circles Started\" \n";
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4.pl unmap.parsed.2pp.S3 ".$SPEC{"Agtf"}." circle_candidates 10 $minJump $maxJump $minSSSum";
+$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4.pl unmap.parsed.2pp.S4 ".$SPEC{"Agtf"}." circle_candidates 10 $minJump $maxJump $minSSSum";
 print OUT $command,"\n";
 
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4_MEA.pl circle_candidates_MEA ".$SPEC{"Agtf"}." circle_candidates_MEA";
@@ -112,35 +118,37 @@ print OUT $command,"\n";
 $command="perl ".$SPEC{"ACF_folder"}."/get_pseudo_circle.pl circle_candidates_CBR.pseudo.gene.fa circle_candidates_CBR.CL ".$SPEC{"Seq_len"};
 print OUT $command,"\n";
 
-$command="perl ".$SPEC{"ACF_folder"}."/get_pseudo_circle.pl unmap.parsed.segs.S2.novel.fa circle_candidates_MuS.CL ".$SPEC{"Seq_len"};
-print OUT $command,"\n";
-print OUT "echo \"Step4 annotate_select_and_make_pseudo_sequences_for_circles Finished\" \n\n\n";
+#$command="perl ".$SPEC{"ACF_folder"}."/get_pseudo_circle.pl unmap.parsed.segs.S2.novel.fa circle_candidates_MuS.CL ".$SPEC{"Seq_len"};
+#print OUT $command,"\n";
+#print OUT "echo \"Step4 annotate_select_and_make_pseudo_sequences_for_circles Finished\" \n\n\n";
 
 
 print OUT "#Step5\n";
+print OUT "date\n";
 print OUT "echo \"Step5 caliberate_the_expression_of_circles Started\" \n";
 $command=$SPEC{"BWA_folder"}."/bwa index circle_candidates_MEA.CL";
 print OUT $command,"\n";
 $command=$SPEC{"BWA_folder"}."/bwa index circle_candidates_CBR.CL";
 print OUT $command,"\n";
-$command=$SPEC{"BWA_folder"}."/bwa index circle_candidates_MuS.CL";
-print OUT $command,"\n";
+#$command=$SPEC{"BWA_folder"}."/bwa index circle_candidates_MuS.CL";
+#print OUT $command,"\n";
 
 $command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 circle_candidates_MEA.CL unmap.parsed.UID.fa \> circle_candidates_MEA.sam";
 print OUT $command,"\n";
 $command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 circle_candidates_CBR.CL unmap.parsed.UID.fa \> circle_candidates_CBR.sam";
 print OUT $command,"\n";
-$command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 circle_candidates_MuS.CL unmap.parsed.UID.fa \> circle_candidates_MuS.sam";
-print OUT $command,"\n";
+#$command=$SPEC{"BWA_folder"}."/bwa mem -t ".$thread." -k 16 -T 20 circle_candidates_MuS.CL unmap.parsed.UID.fa \> circle_candidates_MuS.sam";
+#print OUT $command,"\n";
 
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5.pl circle_candidates_MEA.sam circle_candidates_MEA.CL circle_candidates_MEA.p1 ".$SPEC{"Seq_len"}." $Junc $ER $stranded";
 print OUT $command,"\n";
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5.pl circle_candidates_CBR.sam circle_candidates_CBR.CL circle_candidates_CBR.p1 ".$SPEC{"Seq_len"}." $Junc $ER $stranded";
 print OUT $command,"\n";
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5.pl circle_candidates_MuS.sam circle_candidates_MuS.CL circle_candidates_MuS.p1 ".$SPEC{"Seq_len"}." $Junc $ER $stranded";
-print OUT $command,"\n";
+#$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5.pl circle_candidates_MuS.sam circle_candidates_MuS.CL circle_candidates_MuS.p1 ".$SPEC{"Seq_len"}." $Junc $ER $stranded";
+#print OUT $command,"\n";
 
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5m.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_MuS circle_candidates_CBR ".$SPEC{"UNMAP_expr"}." $MAS";
+#$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5m.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_MuS circle_candidates_CBR ".$SPEC{"UNMAP_expr"}." $MAS";
+$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5m2.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_CBR ".$SPEC{"UNMAP_expr"}." $MAS";
 print OUT $command,"\n";
 print OUT "echo \"Step5 caliberate_the_expression_of_circles Finished\" \n\n\n";
 
@@ -151,8 +159,23 @@ $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step6.pl circle_candidates_MEA.refFla
 print OUT $command,"\n";
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step6.pl circle_candidates_CBR.refFlat circle_candidates_CBR.expr circle_candidates_CBR.bed12 circle_candidates_CBR $minSSSum $minSamplecnt $minReadcnt 0 0";
 print OUT $command,"\n";
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step6.pl unmap.parsed.segs.S2 circle_candidates_MuS.expr circle_candidates_MuS.bed12 circle_candidates_MuS $minSSSum $minSamplecnt $minReadcnt 0 0";
+#$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step6.pl unmap.parsed.segs.S2 circle_candidates_MuS.expr circle_candidates_MuS.bed12 circle_candidates_MuS $minSSSum $minSamplecnt $minReadcnt 0 0";
+#print OUT $command,"\n";
+$command="cat circ*bed12 | grep -v 'track name' | grep -v '^-' | cut -f4 | cut -d\\| -f1 > circle_candidates_id";
+print OUT $command,"\n";
+$command="head -n 1 circle_candidates_MEA.expr > tmpheader";
+print OUT $command,"\n";
+$command="cat circ*expr | grep -v 'newid' | grep -v '^-' > circle_candidates_expr_1";
+print OUT $command,"\n";
+$command="perl ".$SPEC{"ACF_folder"}."/get_selected_from_pool_singleline.pl circle_candidates_id circle_candidates_expr_1 circle_candidates_expr_2";
+print OUT $command,"\n";
+$command="cat tmpheader circle_candidates_expr_2 > circle_candidates_expr";
+print OUT $command,"\n";
+$command="rm -rf tmpheader";
+print OUT $command,"\n";
+$command="rm -rf circle_candidates_expr_?";
 print OUT $command,"\n";
 print OUT "echo \"Step6 generating_UCSC_Genome_Browser_files Finished\" \n\n\n";
 
+print OUT "date\n";
 close OUT;

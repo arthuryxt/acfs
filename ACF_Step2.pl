@@ -267,7 +267,8 @@ foreach my $chr (sort keys %uniq) {
 					if ((sanity($left_seq) > 0) or (sanity($right_seq) > 0)) { print OUTerr join("\t",@a),"\tsanity_fail\t",$left_seq,"\t",$right_seq,"\t",$overlap,"\n"; next;}
 					if ((length($left_seq) ne (4*$Extend+1)) or (length($right_seq) ne (4*$Extend+1))) { print OUTerr join("\t",@a),"\tlength_fail\t",$left_seq,"\t",$right_seq,"\t",$overlap,"\n"; next;}
 					my $SMS=0;	
-					my $PMS=0;	
+					my $PMS=0;
+					my $SMscoren=-99999;
 					for(my $k=0; $k<=$overlap; $k++) {
 						my $ml="";
 						my $mr="";
@@ -275,11 +276,27 @@ foreach my $chr (sort keys %uniq) {
 						$mr=substr($right_seq,2*$Extend-2+$overlap-$k,2);
 						if (($ml ne "") and ($mr ne "")) {
 							my $motif=$ml.$mr;
-							if ((exists $SMotif{$motif}) and ($SMotif{$motif} < 0)) { if (abs($SMotif{$motif}) > abs($SMS) ){ $SMS=$SMotif{$motif}; $PMS=$k; } }
+							if ((exists $SMotif{$motif}) and ($SMotif{$motif} < 0)) {
+								my $t=$left_seq;					
+								$t=~tr/[atcgATCG]/[TAGCTAGC]/;
+								my $rc_left_seq=scalar reverse $t;		
+								$t=$right_seq;					
+								$t=~tr/[atcgATCG]/[TAGCTAGC]/;
+								my $rc_right_seq=scalar reverse $t;		
+								my $str1="";
+								$str1=uc substr($rc_left_seq,(2*$Extend+$k-20),23);
+								my $str2="";
+								$str2=uc substr($rc_right_seq,(2*$Extend+1-3-$overlap+$k),9);
+								if ((length($str1) eq 23) and (length($str2) eq 9)) {
+									my $left_maxt=sprintf("%.2f", &log2(&scoreconsensus3($str1)*&maxentscore(&getrest3($str1),\@metables)));
+									my $right_maxt=sprintf("%.2f",&log2(&scoreconsensus5($str2)*$me2x5{$seq{&getrest5($str2)}}));
+									my $sumt=sprintf("%.2f",($left_maxt + $right_maxt));
+									if ($SMscoren < $sumt) { $SMscoren=$sumt; $SMS=$SMotif{$motif}; $PMS=$k; }
+								}
+							}
 						}
 					}
 					if ($SMS < 0) {
-						{
 						my $t=$left_seq;					
 						$t=~tr/[atcgATCG]/[TAGCTAGC]/;
 						my $rc_left_seq=scalar reverse $t;		
@@ -307,7 +324,6 @@ foreach my $chr (sort keys %uniq) {
 							$a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t"."-"."\t".$overlap."\t".$PMS."\t".($overlap-$PMS)."\t".$SMS."\t".$PMS;
 							print OUT1 join("\t",@a),"\n";
 							next;
-						}
 						}
 					}
 					else {
@@ -399,7 +415,8 @@ foreach my $chr (sort keys %uniq) {
 					if ((sanity($left_seq) > 0) or (sanity($right_seq) > 0)) { print OUTerr join("\t",@a),"\tsanity_fail\t",$left_seq,"\t",$right_seq,"\t",$overlap,"\n"; next;}
 					if ((length($left_seq) ne (4*$Extend+1)) or (length($right_seq) ne (4*$Extend+1))) { print OUTerr join("\t",@a),"\tlength_fail\t",$left_seq,"\t",$right_seq,"\t",$overlap,"\n"; next;}
 					my $SMS=0;	
-					my $PMS=0;	
+					my $PMS=0;
+					my $SMscoren=-99999;
 					for(my $k=0; $k<=$overlap; $k++) {
 						my $ml="";
 						my $mr="";
@@ -407,7 +424,18 @@ foreach my $chr (sort keys %uniq) {
 						$mr=substr($right_seq,2*$Extend-2+$overlap-$k,2);
 						if (($ml ne "") and ($mr ne "")) {
 							my $motif=$ml.$mr;
-							if ((exists $SMotif{$motif}) and ($SMotif{$motif} > 0)) { if (abs($SMotif{$motif}) > abs($SMS) ){ $SMS=$SMotif{$motif}; $PMS=$k; } }
+							if ((exists $SMotif{$motif}) and ($SMotif{$motif} > 0)) {
+								my $str1="";
+								$str1=uc substr($left_seq,(2*$Extend+1-$k-3),9);
+								my $str2="";
+								$str2=uc substr($right_seq,(2*$Extend-2+$overlap-$k-20+2),23);
+								if ((length($str1) eq 9) and (length($str2) eq 23)) {
+									my $left_maxt=sprintf("%.2f",&log2(&scoreconsensus5($str1)*$me2x5{$seq{&getrest5($str1)}}));
+									my $right_maxt=sprintf("%.2f", &log2(&scoreconsensus3($str2)*&maxentscore(&getrest3($str2),\@metables)));
+									my $sumt=sprintf("%.2f",($left_maxt + $right_maxt));
+									if ($SMscoren < $sumt) { $SMscoren=$sumt; $SMS=$SMotif{$motif}; $PMS=$k; }
+								}
+							}
 						}
 					}
 					if ($SMS > 0) {

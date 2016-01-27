@@ -30,6 +30,7 @@ close IN1;
 open(IN2, $filein2);
 open(OUT1, ">".$filein2.".matched");
 open(OUT2, ">".$filein2.".novel");
+open(OUT22, ">".$filein2.".novel2");
 my %selected;
 while(<IN2>) {
     chomp;
@@ -60,6 +61,9 @@ while(<IN2>) {
         else {
             print OUT2 join("\t",@a),"\n";
             $selected{$a[1]}=1;
+            # output in the same format as input1
+            my @tmp=split(/\_/,$a[1]);
+            print OUT22 join("\t",$a[1],$a[2],$tmp[1],$tmp[2],$tmp[3],$a[11],$a[12],$a[13],$a[3],$a[14],$a[15],$a[16],0,$a[15],"newid"),"\n";
         }
     }
 }

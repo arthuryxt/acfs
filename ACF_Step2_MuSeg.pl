@@ -496,16 +496,20 @@ while(<INf>) {
 		
 		my @b=split("\t",$READ{$a[0]});
 		my $NRb=scalar(@b)/5;
-		if ($a[5] eq "-") {
-			my @cl=split(/\_\_\_\_/,$a[9]);
-			my @cr=split(/\_\_\_\_/,$a[-1]);
-			$Overlap{$a[0]} = $b[5*$cl[0]] + $b[5*$cl[0]+1] - $b[5*$cr[0]];
-		}
-		else {
-			my @cl=split(/\_\_\_\_/,$a[9]);
-			my @cr=split(/\_\_\_\_/,$a[-1]);
-			$Overlap{$a[0]} = $b[5*$cr[0]] + $b[5*$cr[0]+1] - $b[5*$cl[0]];
-		}
+		my $tmpoverlap=0;
+		for(my $i=1; $i<$NRb; $i++){ $tmpoverlap+=$b[5*$i+1]; }
+		$tmpoverlap=$tmpoverlap - $b[2];
+		$Overlap{$a[0]}=$tmpoverlap;	# maximal possible gap length
+		#if ($a[5] eq "-") {
+		#	my @cl=split(/\_\_\_\_/,$a[9]);
+		#	my @cr=split(/\_\_\_\_/,$a[-1]);
+		#	$Overlap{$a[0]} = $b[5*$cl[0]] + $b[5*$cl[0]+1] - $b[5*$cr[0]];
+		#}
+		#else {
+		#	my @cl=split(/\_\_\_\_/,$a[9]);
+		#	my @cr=split(/\_\_\_\_/,$a[-1]);
+		#	$Overlap{$a[0]} = $b[5*$cr[0]] + $b[5*$cr[0]+1] - $b[5*$cl[0]];
+		#}
 	}
 }
 
@@ -839,6 +843,7 @@ foreach my $chr (sort keys %candy) {
 				if ($debug eq 20) { print "R+m-S5\n",$rc_left_seq,"\n",$rc_right_seq,"\n"; }
 				for(my $i=0; $i<=$a[5]+2; $i++) {
 					my $str=uc substr($rc_left_seq,(2*$Extend+1-3 - $i),9);
+					#my $str=uc substr($rc_right_seq,(2*$Extend+1-3 + $i),9);
 			        if ((length($str) ne 9) and ($debug eq 20)) {print join("\t",@a),"\n";last;}
 					if ((length($str) ne 9)) {last;}
 			        my $tmp_score=sprintf("%.2f",&log2(&scoreconsensus5($str)*$me2x5{$seq{&getrest5($str)}}));
@@ -846,7 +851,9 @@ foreach my $chr (sort keys %candy) {
 					if ($debug eq 20) { print "R+m-S5\n",$i,"\t",$str,"\t",$tmp_score,"\n"; }
 				}
 				for (my $i=0; $i<=$a[5]+2; $i++) {
-					my $str=substr($rc_right_seq,(2*$Extend+1-20 - $i),23);
+					my $str=substr($rc_right_seq,(2*$Extend-20+1 + $i),23);
+					#my $str=substr($rc_right_seq,(2*$Extend+1-20 - $i),23);
+					#my $str=substr($rc_left_seq,(2*$Extend+$i-20),23);
 			        if ((length($str) ne 23) and ($debug eq 20)) {print join("\t",@a),"\n";last;}
 					if (length($str) ne 23) { last;}
 			        my $tmp_score=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
@@ -859,6 +866,7 @@ foreach my $chr (sort keys %candy) {
 			    foreach my $leftpos (sort keys %SScore5) {
 					foreach my $rightpos (sort keys %SScore3) {
 						if ((($leftpos + $rightpos) >=0) and (($leftpos + $rightpos) <= $a[5]) and (($SScore5{$leftpos} + $SScore3{$rightpos}) > $SSum)) {
+						#if ((($leftpos + $rightpos) eq $a[5]) and (($SScore5{$leftpos} + $SScore3{$rightpos}) > $SSum)) {
 							$rc_left_pos=$leftpos;
 							$rc_right_pos=$rightpos;
 							$SSum=$SScore5{$leftpos} + $SScore3{$rightpos};
@@ -898,8 +906,10 @@ foreach my $chr (sort keys %candy) {
 				print OUTfa1 ">".$a[0],"\n",$fasta,"\n";
 				
 				$Start=$start+$rc_left_pos;
-				$End=$end-$rc_right_pos;
-				$report=join("\t",$a[0]."_".$a[6],$a[0],"chr".$ID[0]);
+				$End=$end-$rc_right_pos-1;
+				my $fixedid=join("_",$ID[0],$End,$Start,($Start-$End));	# replace $a[0]
+				#$report=join("\t",$a[0]."_".$a[6],$a[0],"chr".$ID[0]);
+				$report=join("\t",$fixedid."_".$a[6],$fixedid,"chr".$ID[0]);
 				if ($a[1] > 0) { $report=$report."\t-";}
 				else { $report=$report."\t+"; }
 				$report=join("\t",$report,$Start,$End,$Start,$Start,$a[2]);
@@ -930,9 +940,9 @@ foreach my $chr (sort keys %candy) {
 						if ($debug eq 30) {print join("\t",$k,$ExonL[$k]-1,$ExonR[$k]-1,$rc_t),"\n";}
 					}
 				}
-				$report=join("\t","chr".$ID[0],$Start-1,$End-1,$a[0]."_".$a[6]."_".$SSum,$a[7],"-",$Start-1,$Start-1,0,$a[2],$blockSizes,$blockStarts);
+				$report=join("\t","chr".$ID[0],$Start-1,$End-1,$fixedid."_".$a[6]."_".$SSum,$a[7],"-",$Start-1,$Start-1,0,$a[2],$blockSizes,$blockStarts);
 				if (($End - $Start) < 1000000) { print OUTf22 $report,"\n"; }
-				print OUTfa2 ">".$a[0],"\n",$fasta,"\n";
+				print OUTfa2 ">".$fixedid,"\n",$fasta,"\n";
 			}
 			# R-m+
 			else {
@@ -955,7 +965,8 @@ foreach my $chr (sort keys %candy) {
 					if ($debug eq 20) { print "R-m+S5\n",$i,"\t",$str,"\t",$tmp_score,"\n"; }
 				}
 				for (my $i=0; $i<=$a[5]+2; $i++) {
-					my $str=substr($left_seq,(2*$Extend+1-20 + $i),23);
+					#my $str=substr($left_seq,(2*$Extend+1-20 + $i),23);
+					my $str=substr($left_seq,(2*$Extend-20 + $i),23);
 			        if ((length($str) ne 23) and ($debug eq 20))  {print join("\t",@a),"\n";last;}
 					if (length($str) ne 23) { last;}
 			        my $tmp_score=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
@@ -968,6 +979,7 @@ foreach my $chr (sort keys %candy) {
 			    foreach my $leftpos (sort keys %SScore5) {
 					foreach my $rightpos (sort keys %SScore3) {
 						if ((($leftpos + $rightpos) >=0) and (($leftpos + $rightpos) <= $a[5]) and (($SScore5{$leftpos} + $SScore3{$rightpos}) > $SSum)) {
+						#if ((($leftpos + $rightpos) eq $a[5]) and (($SScore5{$leftpos} + $SScore3{$rightpos}) > $SSum)) {
 							$rc_left_pos=$leftpos;
 							$rc_right_pos=$rightpos;
 							$SSum=$SScore5{$leftpos} + $SScore3{$rightpos};
@@ -1008,7 +1020,9 @@ foreach my $chr (sort keys %candy) {
 				
 				$Start=$start+$rc_right_pos;
 				$End=$end-$rc_left_pos;
-				$report=join("\t",$a[0]."_".$a[6],$a[0],"chr".$ID[0]);
+				my $fixedid=join("_",$ID[0],$End,$Start,($Start-$End));	# replace $a[0]
+				#$report=join("\t",$a[0]."_".$a[6],$a[0],"chr".$ID[0]);
+				$report=join("\t",$fixedid."_".$a[6],$fixedid,"chr".$ID[0]);
 				if ($a[1] > 0) { $report=$report."\t-";}
 				else { $report=$report."\t+"; }
 				$report=join("\t",$report,$Start,$End,$Start,$Start,$a[2]);
@@ -1036,9 +1050,9 @@ foreach my $chr (sort keys %candy) {
 						if ($debug eq 30) {print join("\t",$k,$ExonL[$k],$ExonR[$k],$tmpseq),"\n";}
 					}
 				}
-				$report=join("\t","chr".$ID[0],$Start-1,$End-1,$a[0]."_".$a[6]."_".$SSum,$a[7],"+",$Start-1,$Start-1,0,$a[2],$blockSizes,$blockStarts);
+				$report=join("\t","chr".$ID[0],$Start-1,$End-1,$fixedid."_".$a[6]."_".$SSum,$a[7],"+",$Start-1,$Start-1,0,$a[2],$blockSizes,$blockStarts);
 				if (($End - $Start) < 1000000) { print OUTf22 $report,"\n"; }
-				print OUTfa2 ">".$a[0],"\n",$fasta,"\n";
+				print OUTfa2 ">".$fixedid,"\n",$fasta,"\n";
 			}
 		}
 	}

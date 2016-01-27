@@ -126,10 +126,9 @@ bash BASH_example.sh
 
 
 ========== 4. How_to_Visulize_Your_Circles ==========
-# circles are stored in three files:
+# circles are stored in two files:
 circle_candidates_MEA.bed12
 circle_candidates_CBR.bed12
-circle_candidates_MuS.bed12
 # the higher the value in 5th column, the more "likely" that circle is true
 # the name in 4th column can be seperated by "|" into four segments: circle-ID, sum-of-Splicing-Strength, number-of-supporting-samples, number-of-supporting-reads 
 # the sequence for the "middle exons" in almost every circle is hypothetically filled in using the annotations provided, true sequences could be determined by integrating mRNA-Seq data and validated by inward and outward PCRs.
@@ -137,7 +136,6 @@ circle_candidates_MuS.bed12
 # their expression per sample is stored here:
 circle_candidates_MEA.expr
 circle_candidates_CBR.expr
-circle_candidates_MuS.expr
 # the second column denote the name of the gene from which this circRNA is derived 
 ========== 4. How_to_Visulize_Your_Circles ==========
 
@@ -212,11 +210,9 @@ bash BASH_example.sh
 # bed12 files for visualization of circRNAs, such as using G-Browser
 circle_candidates_MEA.bed12      # high-confident circles that cross annotated boundarys of exon(s)
 circle_candidates_CBR.bed12      # low-confident circles (could still be true)
-circle_candidates_MuS.bed12      # circles originated from very short exons [therefore might be a bit more difficult to validate]
 # expression(readcounts) table for circRNAs, with circRNAs in rows and samples in columns
 circle_candidates_MEA.expr       
 circle_candidates_CBR.expr
-circle_candidates_MuS.expr
 ========== 5. Tutorial ==========
 
 
@@ -250,5 +246,7 @@ Update on 2015-08-20 :
    Added support for paired-end reads.
 Update on 2015-09-17 :
    Added a small real-world example.
+Update on 2016-01-27
+   Performance improvement and add scripts for simulation
 Expecting a much faster standalone version soon...
 ========== Change Log ==========

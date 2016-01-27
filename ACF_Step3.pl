@@ -5,7 +5,6 @@ die "Usage: $0   \"output\"   \"parsed.2pp.S2.sum_input1\"  \"\(optional\)parsed
 my $fileout=$ARGV[0];
 my %uniq;
 my $Nr=scalar(@ARGV);
-
 my $command="rm -f Step3_finished";
 system($command);
 

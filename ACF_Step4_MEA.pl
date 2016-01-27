@@ -7,7 +7,6 @@ my $gtf=$ARGV[1];
 my $fileout=$ARGV[2];   
 my $Extend=50;         # 100nt by default.
 if (scalar(@ARGV) > 3) {$Extend=$ARGV[3];}
-
 my $command="rm -f Step4_MEA_finished";
 system($command);
 

@@ -5,6 +5,7 @@ die "Usage: $0  \"arthurian gtf\"  \"genome_location\"  \"output basename\" \"\(
 # output mRNA sequences together with exon sequences
 # put extended sequences in lower case
 # treat transcript without strandness (mostly single-exonic) as from "+"
+
 my $anno=$ARGV[0];
 my $genome=$ARGV[1];
 my $fileout=$ARGV[2];

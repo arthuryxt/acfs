@@ -11,8 +11,8 @@ my %Gname;
 my %ExonCnt;
 open IN,$gtf;
 while(<IN>) {
-	chomp;
-	my @a=split("\t",$_);
+    chomp;
+    my @a=split("\t",$_);
     # MT      protein_coding  exon    3307    4262    .       +       .        gene_id "ENSG00000198888"; transcript_id "ENST00000361390"; exon_number "1"; gene_name "MT-ND1"; gene_biotype "protein_coding"; transcript_name "MT-ND1-201";
     if (($a[2] eq "exon") and ($a[0]!~m/NT/)){
         my @b=split(/\"/,$a[8]);

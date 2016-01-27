@@ -179,3 +179,4 @@ print OUT "echo \"Step6 generating_UCSC_Genome_Browser_files Finished\" \n\n\n";
 
 print OUT "date\n";
 close OUT;
+

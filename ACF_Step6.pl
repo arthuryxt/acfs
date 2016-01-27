@@ -20,7 +20,6 @@ open(IN1, $filein1) || die "Can't open $filein1 for reading!\n";
 
 open(OUT, ">".$fileout) || die "Can't open $fileout for writing!\n";
 
-
 open(IN2, $filein2) || die "Can't open $filein2 for reading!\n";
 my %Anno;
 my %AnnoS;

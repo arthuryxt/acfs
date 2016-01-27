@@ -5,7 +5,6 @@ die "Usage: $0  \"circRNA\"  \"split_exon_gtf\"   \"output\" " if (@ARGV < 3);
 my $filein=$ARGV[0];    
 my $gtf=$ARGV[1];       
 my $fileout=$ARGV[2];   
-
 my $command="rm -f Step4_CBR_finished";
 system($command);
 

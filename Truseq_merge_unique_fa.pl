@@ -8,6 +8,7 @@ my $fileNR=scalar(@ARGV);
 my %uniq;
 my %SEQ;
 my %Sample;
+
 open OUT,">".$fileout;
 open OUT2,">".$fileout."_expr";
 for(my $i=2; $i<$fileNR; $i++) {

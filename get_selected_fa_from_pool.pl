@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
-my $filein=$ARGV[0];    # empty1
-my $DB=$ARGV[1];        # 454Isotigs.fna.fa
-my $fileout=$ARGV[2];   # redo_empty
+my $filein=$ARGV[0];    # list
+my $DB=$ARGV[1];        # big.fa
+my $fileout=$ARGV[2];   # output
 open IN,$filein;
 my %uniq;
 while(<IN>) {

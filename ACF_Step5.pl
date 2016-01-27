@@ -20,7 +20,6 @@ if(scalar(@ARGV) > 6) {
 }
 my $debug=0;
 if(scalar(@ARGV) > 7) {$debug=$ARGV[7];}
-
 my %Ref;
 open IN2,$filein2;
 while(<IN2>) {

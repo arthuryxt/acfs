@@ -16,7 +16,7 @@ my $addchr=0;
 if (scalar(@ARGV) > 7) { $addchr=$ARGV[7]; }
 open(IN, $filein1) || die "Can't open $filein1 for reading!\n";
 open(OUT, ">".$fileout) || die "Can't open $fileout for writing!\n";
-
+#
 # format examples: 
 # I. refFlat   half-open zero-based. This means that the first 100 bases of a chromosome are represented as [0,100), i.e. 0-99.
 # XLOC_005566 TCONS_00012033  chr6  + 171030441 171044890 171030441 171030441 3 171030441,171037018,171044838,  171030573,171037146,171044890,

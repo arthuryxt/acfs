@@ -7,7 +7,6 @@ my $fileout="pre_defined_circRNA.sum";
 if (scalar(@ARGV) > 1) {$fileout=$ARGV[1];}
 open IN,$filein;
 open OUT,">".$fileout;
-
 my $count=0;
 while(<IN>) {
 	chomp;

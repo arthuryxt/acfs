@@ -11,6 +11,7 @@ if (scalar(@ARGV) > 3) { $min_len=$ARGV[3]; }
 my $verbose=0;
 if (scalar(@ARGV) > 4) { $verbose=$ARGV[4]; }
 my $Error_rate=0.15;
+
 my %uniq1;
 my %uniq2;
 open(IN, $filein1) or die "Cannot open input_sam : $filein1\n";

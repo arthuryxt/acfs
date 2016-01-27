@@ -2,7 +2,7 @@
 use strict;
 die "Usage: $0  \"input_mRNA_fa\"   \"output\"   \"\(optional\)name default=circRNA\"   \"\(optional\)read_length default=100\"   \"\(optional\)insert_size default=200\"   \"\(optional\)insert_size_SD default=50\"   \"\(optional\)min_mRNA_length default=300\"   \"\(optional\)read_per_transcript default\=20\"  \"\(optional\)overlap_junction default\=6\"" if (@ARGV < 2);
 my $filein1=$ARGV[0];	# mRNA.fa
-my $fileout=$ARGV[1];	# simulated_read.fa, assumed Illumina Stranded RNA-Seq protocol.
+my $fileout=$ARGV[1];	# simulated_read.fa, assuming Illumina Stranded RNA-Seq protocol.
 my $newid="circRNA";
 if (scalar(@ARGV) > 2) { $newid=$ARGV[2]; }
 my $readlen=100;

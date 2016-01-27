@@ -5,6 +5,7 @@ my $filein=$ARGV[0];
 my $fileout=$ARGV[1];   
 my $debug=0;
 if (scalar(@ARGV) > 2) {$debug=$ARGV[2];}
+
 open IN,$filein;
 open OUT,">".$fileout;
 open OUT2,">".$fileout."_gene";

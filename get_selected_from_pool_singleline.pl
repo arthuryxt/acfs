@@ -5,6 +5,7 @@ my $DB=$ARGV[1];        # database file, all entry
 my $fileout=$ARGV[2];   # resulting interesting entry
 my $pos=0;              # 0-based column position
 if ($ARGV[3]) {$pos=$ARGV[3]}
+
 open IN,$filein;
 my %uniq;
 while(<IN>) {

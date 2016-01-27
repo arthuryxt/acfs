@@ -16,7 +16,6 @@ my $minSSScore=10;
 if (scalar(@ARGV) > 6) {$minSSScore=$ARGV[6];}
 my $debug=0;
 if (scalar(@ARGV) > 7) {$debug=$ARGV[7];}
-
 my $command="rm -f Step4_finished";
 system($command);
 

@@ -9,7 +9,6 @@ my $fileout=$ARGV[3];
 my $Extend=15;           # 15nt by default. as 3' splice strength need 23nt, 20nt from intron and 3 from exon.
 if (scalar(@ARGV) > 4) {$Extend=$ARGV[3];}
 my %uniq;
-
 my $command="rm -f Step2_finished";
 system($command);
 

@@ -10,6 +10,7 @@ my $MAS=30;
 if (scalar(@ARGV) > 4) {$MAS=$ARGV[4];}
 my %OK;
 my %OKinfo;
+
 open IN0, $filetmp;
 while(<IN0>) {
     chomp;

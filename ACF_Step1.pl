@@ -9,6 +9,7 @@ my $cutoff=0.9;
 if (scalar(@ARGV) > 3) {$cutoff=$ARGV[3];}
 if (($cutoff <= 0) or ($cutoff >=1 )) { die "cutoff must be within (0,1) !" }
 my %uniq;   # store processed ID
+
 open IN, $filein;
 open OUT,">".$fileout.".tmp";
 open OUT1,">".$fileout.".1";    # single hit

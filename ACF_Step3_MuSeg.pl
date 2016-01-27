@@ -8,7 +8,6 @@ my $window=10;
 if (scalar(@ARGV) > 2){ $window=$ARGV[2]; }
 my $debug=0;
 if (scalar(@ARGV) > 3){ $debug=$ARGV[3]; }
-
 my $command="rm -f Step3_MuSeg_finished";
 system($command);
 

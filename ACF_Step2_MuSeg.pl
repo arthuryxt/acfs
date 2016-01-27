@@ -16,7 +16,6 @@ if (scalar(@ARGV) > 6) {$debug=$ARGV[6];}
 my $cutoff=0.9;
 my $Extend=15;
 my $closegap=50;
-
 my $command="rm -f Step2_MuSeg_finished";
 system($command);
 

@@ -10,7 +10,6 @@ if (($SM ne 0) and ($SM ne 2)) { die "Sequencing Mode can only be : 0 or 2!"; }
 my $sanity=1;
 if (scalar(@ARGV) > 3) { $sanity=$ARGV[4]; }
 if (($sanity ne 0) and ($sanity ne 1)) { die "remove_sequences_with_N==1 or keep_sequences_with_N==0 !"; }
-
 open(IN, $filein1) or die "Cannot open input_raw_fasta $filein1 ";
 open(OUT, ">".$fileout) or die "Cannot open output file $fileout ";
 while (<IN>) {

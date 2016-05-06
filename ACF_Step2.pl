@@ -1,14 +1,18 @@
 #!/usr/bin/perl -w
 use strict;
 # check splicing sites for every single circRNA candidates. Require stranded sequencing and the sequencing reads are reverse-complementary to mRNA
-die "Usage: $0  \"CB_splice_folder\"  \"selected_circ_reads\"  \"genome_location\"  \"output basename\"  \"\(optional\) extend N bases\"  " if (@ARGV < 4);
+die "Usage: $0  \"CB_splice_folder\"  \"selected_circ_reads\"  \"genome_location\"  \"output basename\"  \"\(optional\) extend N bases\"  \"\(optional\)debug==0\"" if (@ARGV < 4);
 my $DIR=$ARGV[0];		# /home/arthur/CB_splice/
 my $anno=$ARGV[1];      # unmap.parsed.2pp
 my $genome=$ARGV[2];    # /data/iGenome/mouse/Ensembl/NCBIM37/Sequence/Chromosomes/
 my $fileout=$ARGV[3];
 my $Extend=15;           # 15nt by default. as 3' splice strength need 23nt, 20nt from intron and 3 from exon.
-if (scalar(@ARGV) > 4) {$Extend=$ARGV[3];}
+if (scalar(@ARGV) > 4) {$Extend=$ARGV[4];}
+my $debug=0;
+if (scalar(@ARGV) > 5) {$debug=$ARGV[5];}
+
 my %uniq;
+
 my $command="rm -f Step2_finished";
 system($command);
 
@@ -16,8 +20,6 @@ open IN,$anno;
 open OUT,">".$fileout;
 open OUT1,">".$fileout.".0";	# splice-motif found				trust hit  CB prediction
 open OUT2,">".$fileout.".1";	# closure == 0,						trust best CB prediction
-open OUT3,">".$fileout.".2";	# closure != 0 but overlap == 0,	report original_positioned CB prediction 
-open OUT4,">".$fileout.".3";	# closure != 0 and overlap != 0,	report original_positioned CB prediction
 open OUTerr,">".$fileout."_withN";
 open OUTp,">".$fileout.".pgap";
 while(<IN>) {
@@ -268,6 +270,8 @@ foreach my $chr (sort keys %uniq) {
 					my $SMS=0;	
 					my $PMS=0;
 					my $SMscoren=-99999;
+                    if ($debug eq 1){ print "\n"; }
+                    if ($debug eq 1){print join("\t",@a),"\n",$left_seq,"\t",$right_seq,"\n";}
 					for(my $k=0; $k<=$overlap; $k++) {
 						my $ml="";
 						my $mr="";
@@ -275,6 +279,7 @@ foreach my $chr (sort keys %uniq) {
 						$mr=substr($right_seq,2*$Extend-2+$overlap-$k,2);
 						if (($ml ne "") and ($mr ne "")) {
 							my $motif=$ml.$mr;
+                            if ($debug eq 1){print $k,"\t",$motif,"\n";}
 							if ((exists $SMotif{$motif}) and ($SMotif{$motif} < 0)) {
 								my $t=$left_seq;					
 								$t=~tr/[atcgATCG]/[TAGCTAGC]/;
@@ -295,6 +300,7 @@ foreach my $chr (sort keys %uniq) {
 							}
 						}
 					}
+                    if ($debug eq 1){print $SMS,"\t",$PMS,"\n";}
 					if ($SMS < 0) {
 						my $t=$left_seq;					
 						$t=~tr/[atcgATCG]/[TAGCTAGC]/;
@@ -326,75 +332,53 @@ foreach my $chr (sort keys %uniq) {
 						}
 					}
 					else {
-						#
-						my $t=$left_seq;
-					    $t=~tr/[atcgATCG]/[TAGCTAGC]/;
-					    my $rc_left_seq=scalar reverse $t;		
-					    $t=$right_seq;
-					    $t=~tr/[atcgATCG]/[TAGCTAGC]/;
-					    my $rc_right_seq=scalar reverse $t;		
-					    my $rc_left_max=-99999;
-					    my $rc_left_pos=0;
-					    my $rc_left_flag=0;
-					    my $rc_right_max=-99999;
-					    my $rc_right_pos=0;
-					    my $rc_right_flag=0;
-					    for (my $i=0; $i<((4*$Extend +1) - 23); $i++) {
-					        my $str=substr($rc_left_seq,$i,23);
-					        if (length($str) ne 23) {print OUTerr join("\t",@a),"\n";last;}
-					        my $tmp_score=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-					        if ($tmp_score > $rc_left_max) {$rc_left_max = $tmp_score; $rc_left_pos=$i; $rc_left_flag=-5;}   
-					    }
-					    for (my $i=0; $i<((2*$Extend +1) - 9); $i++) {
-					        my $str=uc substr($rc_right_seq,($Extend + $i),9);
-					        if (length($str) ne 9) {print OUTerr join("\t",@a),"\n";last;}
-					        my $tmp_score=sprintf("%.2f",&log2(&scoreconsensus5($str)*$me2x5{$seq{&getrest5($str)}}));
-					        if ($tmp_score > $rc_right_max) {$rc_right_max = $tmp_score; $rc_right_pos=$i; $rc_right_flag=-3;}   
-					    }
-						{
-							my $sum=sprintf("%.2f",($rc_left_max + $rc_right_max));
-							$a[7]=$a[7]."\t".$left_seq."\t".$rc_left_max."\t".$rc_left_pos."\t".$rc_left_flag;
-							$a[12]=$a[12]."\t".$right_seq."\t".$rc_right_max."\t".$rc_right_pos."\t".$rc_right_flag;
-							$a[13]=$a[13]."\t".$sum."\t".$SMS."\t".$PMS;
-							print OUT join("\t",@a),"\n";
-							my @a=split("\t",$uniq{$chr}{$start}{$end}{$seqid});
-							my $strand="+";
-							if ($rc_left_flag < 0) {$strand="-";}
-							my $left_move=2*$Extend - ($rc_left_pos + 20);
-							my $right_move=($Extend + $rc_right_pos + 3) - (2*$Extend + 1);
-							my $closure=0;
-							if ($a[7] eq "+") { $closure = $left_move + $right_move - $overlap; }
-							else { $closure = $left_move + $right_move - $overlap;}
-							if ($closure eq 0) {
-							    $a[4]=$a[4]-$left_move;
-							    $a[6]=$a[6]-$left_move;
-								$a[8]=$a[8]+$right_move;
-							    $a[9]=$a[9]-$right_move;
-							    $a[10]=$a[10]+$right_move;
-							    $a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$rc_left_max)."\t".sprintf("%.2f",$rc_right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							    print OUT2 join("\t",@a),"\n";
-							}
-							else {
-								if ($overlap eq 0) {
-							        my $str=uc substr($rc_left_seq,(2*$Extend - 20),23);
-							        $rc_right_max=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-							        my $str2=uc substr($rc_right_seq,(2*$Extend + 1 - 3),9);
-							        $rc_left_max=sprintf("%.2f",&log2(&scoreconsensus5($str2)*$me2x5{$seq{&getrest5($str2)}}));
-							        $sum=sprintf("%.2f",($rc_left_max + $rc_right_max));
-							        $a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$rc_left_max)."\t".sprintf("%.2f",$rc_right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							        print OUT3 join("\t",@a),"\n";
-							    }
-							    else {
-							        my $str=uc substr($rc_left_seq,(2*$Extend - 20),23);
-							        $rc_right_max=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-							        my $str2=uc substr($rc_right_seq,(2*$Extend + 1 - 3),9);
-							        $rc_left_max=sprintf("%.2f",&log2(&scoreconsensus5($str2)*$me2x5{$seq{&getrest5($str2)}}));
-							        $sum=sprintf("%.2f",($rc_left_max + $rc_right_max));
-									$a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$rc_left_max)."\t".sprintf("%.2f",$rc_right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							        print OUT4 join("\t",@a),"\n";
-							    }
-							}
-						}
+                        $SMscoren=-99999;
+                        $left_max=0;
+                        $left_pos=0;
+                        $right_max=0;
+                        $right_pos=0;
+                        for(my $k=0; $k<=$overlap; $k++) {
+                            my $t=$left_seq;					
+                            $t=~tr/[atcgATCG]/[TAGCTAGC]/;
+                            my $rc_left_seq=scalar reverse $t;		
+                            $t=$right_seq;					
+                            $t=~tr/[atcgATCG]/[TAGCTAGC]/;
+                            my $rc_right_seq=scalar reverse $t;		
+                            my $str1="";
+                            $str1=uc substr($rc_left_seq,(2*$Extend+$k-20),23);
+                            my $str2="";
+                            $str2=uc substr($rc_right_seq,(2*$Extend+1-3-$overlap+$k),9);
+                            if ((length($str1) eq 23) and (length($str2) eq 9)) {
+                                my $left_maxt=sprintf("%.2f", &log2(&scoreconsensus3($str1)*&maxentscore(&getrest3($str1),\@metables)));
+								my $right_maxt=sprintf("%.2f",&log2(&scoreconsensus5($str2)*$me2x5{$seq{&getrest5($str2)}}));
+                                my $sumt=sprintf("%.2f",($left_maxt + $right_maxt));
+                                if ($SMscoren < $sumt) {
+                                    $SMscoren=$sumt;
+                                    $PMS=$k;
+                                    $left_pos=$k;
+                                    $left_max=$left_maxt;
+                                    $right_pos=$overlap-$k;
+                                    $right_max=$right_maxt;
+                                    $left_flag=-5;
+                                    $right_flag=-3;
+                                }
+                            }    
+                        }
+                        if ($debug eq 1){print $SMscoren,"\t",$PMS,"\t",($overlap-$PMS),"\t",$overlap,"\n";}
+						$a[7]=$a[7]."\t".$left_seq."\t".$left_max."\t".$left_pos."\t".$left_flag;
+						$a[12]=$a[12]."\t".$right_seq."\t".$right_max."\t".$right_pos."\t".$right_flag;
+						$a[13]=$a[13]."\t".$SMscoren."\t".$SMS."\t".$PMS;
+						print OUT join("\t",@a),"\n";
+						my @a=split("\t",$uniq{$chr}{$start}{$end}{$seqid});
+						my $strand="+";
+						if ($left_flag < 0) {$strand="-";}
+                        $a[4]=$a[4]-$PMS;
+						$a[6]=$a[6]-$PMS;
+						$a[8]=$a[8]+($overlap-$PMS);
+						$a[9]=$a[9]-($overlap-$PMS);
+						$a[10]=$a[10]+($overlap-$PMS);
+                        $a[13]=$a[13]."\t".$SMscoren."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t".$strand."\t".$overlap."\t".$PMS."\t".($overlap-$PMS)."\t".$SMS."\t".$PMS;
+                        print OUT2 join("\t",@a),"\n";
 					}
 				}
 				else {
@@ -416,6 +400,8 @@ foreach my $chr (sort keys %uniq) {
 					my $SMS=0;	
 					my $PMS=0;
 					my $SMscoren=-99999;
+                    if ($debug eq 1){ print "\n"; }
+                    if ($debug eq 1){print join("\t",@a),"\n",$left_seq,"\t",$right_seq,"\n";}
 					for(my $k=0; $k<=$overlap; $k++) {
 						my $ml="";
 						my $mr="";
@@ -423,6 +409,7 @@ foreach my $chr (sort keys %uniq) {
 						$mr=substr($right_seq,2*$Extend-2+$overlap-$k,2);
 						if (($ml ne "") and ($mr ne "")) {
 							my $motif=$ml.$mr;
+                            if ($debug eq 1){print $k,"\t",$motif,"\n";}
 							if ((exists $SMotif{$motif}) and ($SMotif{$motif} > 0)) {
 								my $str1="";
 								$str1=uc substr($left_seq,(2*$Extend+1-$k-3),9);
@@ -437,6 +424,7 @@ foreach my $chr (sort keys %uniq) {
 							}
 						}
 					}
+                    if ($debug eq 1){print $SMS,"\t",$PMS,"\n";}
 					if ($SMS > 0) {
 						my $str1="";
 						$str1=uc substr($left_seq,(2*$Extend+1-$PMS-3),9);
@@ -462,66 +450,49 @@ foreach my $chr (sort keys %uniq) {
 						}
 					}
 					else {
-						#
-						for (my $i=0; $i<((2*$Extend +1) - 9); $i++) {
-							my $str=uc substr($left_seq,($Extend + $i),9);
-							if (length($str) ne 9) {print OUTerr join("\t",@a),"\n"; last;}
-							my $tmp_score=sprintf("%.2f",&log2(&scoreconsensus5($str)*$me2x5{$seq{&getrest5($str)}}));
-							if ($tmp_score > $left_max) {$left_max = $tmp_score; $left_pos=$i; $left_flag=+5;}   
-						}
-						for (my $i=0; $i<((4*$Extend +1) - 23); $i++) {
-						    my $str=uc substr($right_seq,$i,23);
-						    if (length($str) ne 23) {print OUTerr join("\t",@a),"\n";last;}
-						    my $tmp_score=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-						    if ($tmp_score > $right_max) {$right_max = $tmp_score; $right_pos=$i; $right_flag=+3;}   
-						}
-						{
-							my $sum=sprintf("%.2f",($left_max + $right_max));
-							$a[7]=$a[7]."\t".$left_seq."\t".$left_max."\t".$left_pos."\t".$left_flag;
-							$a[12]=$a[12]."\t".$right_seq."\t".$right_max."\t".$right_pos."\t".$right_flag;
-							$a[13]=$a[13]."\t".$sum."\t".$SMS."\t".$PMS;
-							print OUT join("\t",@a),"\n";
-							my @a=split("\t",$uniq{$chr}{$start}{$end}{$seqid});
-							my $strand="+";
-							if ($left_flag < 0) {$strand="-";}
-							my $left_move=(2*$Extend + 1) - ($Extend + $left_pos + 3);
-							my $right_move=($right_pos + 20 + 1)  - (2*$Extend - 1);
-							my $closure=0;
-							if ($a[7] eq "+") { $closure = $left_move + $right_move - $overlap; }
-							else { $closure = $left_move + $right_move - $overlap; }
-							if ($closure eq 0) {
-								$a[3]=$a[3]+$left_move;
-							    $a[4]=$a[4]-$left_move;
-							    $a[6]=$a[6]-$left_move;
-							    $a[9]=$a[9]+$right_move;
-							    $a[10]=$a[10]+$right_move;
-							    $a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							    print OUT2 join("\t",@a),"\n";
-							}
-							else {
-								if ($overlap eq 0) {
-							        my $str=uc substr($left_seq,(2*$Extend + 1 - 3),9);
-							        $left_max=sprintf("%.2f",&log2(&scoreconsensus5($str)*$me2x5{$seq{&getrest5($str)}}));
-							        $str=uc substr($right_seq,(2*$Extend -20),23);
-							        $right_max=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-							        $sum=sprintf("%.2f",($left_max + $right_max));
-							        $a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							        print OUT3 join("\t",@a),"\n";
-							    }
-							    else {
-									my $str=uc substr($left_seq,(2*$Extend + 1 - 3),9);
-							        $left_max=sprintf("%.2f",&log2(&scoreconsensus5($str)*$me2x5{$seq{&getrest5($str)}}));
-							        $str=uc substr($right_seq,(2*$Extend -20),23);
-							        $right_max=sprintf("%.2f", &log2(&scoreconsensus3($str)*&maxentscore(&getrest3($str),\@metables)));
-							        $sum=sprintf("%.2f",($left_max + $right_max));
-							        $a[13]=$a[13]."\t".$sum."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t".$strand."\t".$overlap."\t".$left_move."\t".$right_move."\t".$SMS."\t".$PMS;
-							        print OUT4 join("\t",@a),"\n";
-							    }
-							}
-						}
+                        $SMscoren=-99999;
+                        $left_max=0;
+                        $left_pos=0;
+                        $right_max=0;
+                        $right_pos=0;
+                        for(my $k=0; $k<=$overlap; $k++) {
+                            my $str1="";
+                            $str1=uc substr($left_seq,(2*$Extend+1-$k-3),9);
+                            my $str2="";
+                            $str2=uc substr($right_seq,(2*$Extend-2+$overlap-$k-20+2),23);
+                            if ((length($str1) eq 9) and (length($str2) eq 23)) {
+                                my $left_maxt=sprintf("%.2f",&log2(&scoreconsensus5($str1)*$me2x5{$seq{&getrest5($str1)}}));
+                                my $right_maxt=sprintf("%.2f", &log2(&scoreconsensus3($str2)*&maxentscore(&getrest3($str2),\@metables)));
+                                my $sumt=sprintf("%.2f",($left_maxt + $right_maxt));
+                                if ($SMscoren < $sumt) {
+                                    $SMscoren=$sumt;
+                                    $PMS=$k;
+                                    $left_pos=$k;
+                                    $left_max=$left_maxt;
+                                    $right_pos=$overlap-$k;
+                                    $right_max=$right_maxt;
+                                    $left_flag=+5;
+                                    $right_flag=+3;
+                                }
+                            }    
+                        }
+                        if ($debug eq 1){print $SMscoren,"\t",$PMS,"\t",($overlap-$PMS),"\t",$overlap,"\n";}
+                        $a[7]=$a[7]."\t".$left_seq."\t".$left_max."\t".$left_pos."\t".$left_flag;
+                        $a[12]=$a[12]."\t".$right_seq."\t".$right_max."\t".$right_pos."\t".$right_flag;
+                        $a[13]=$a[13]."\t".$SMscoren."\t".$SMS."\t".$PMS;
+                        print OUT join("\t",@a),"\n";
+                        my @a=split("\t",$uniq{$chr}{$start}{$end}{$seqid});
+                        my $strand="+";
+                        if ($left_flag < 0) {$strand="-";}
+                        $a[3]=$a[3]+$PMS;
+                        $a[4]=$a[4]-$PMS;
+                        $a[6]=$a[6]-$PMS;
+                        $a[9]=$a[9]-($overlap-$PMS);
+                        $a[10]=$a[10]+($overlap-$PMS);
+                        $a[13]=$a[13]."\t".$SMscoren."\t".sprintf("%.2f",$left_max)."\t".sprintf("%.2f",$right_max)."\t".$strand."\t".$overlap."\t".$PMS."\t".($overlap-$PMS)."\t".$SMS."\t".$PMS;
+                        print OUT2 join("\t",@a),"\n";
 					}
 				}
-
 			}
 	    }
     }

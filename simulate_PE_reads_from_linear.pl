@@ -40,7 +40,10 @@ while(<IN>) {
 	#my $trailMax=100;
 	#my $trail=0;
 	chomp;
-	my @id=split("___",$_);
+    s/^>//;
+	my $header=$_;	# >ENSMUSG00000000544___ENSMUST00000027847___processed_transcript
+	my @id=split("___",$header);
+	if (scalar(@id) > 1) { $header=$id[1];}
 	my $seq=<IN>;
 	chomp $seq;
 	my $len=length($seq);
@@ -63,9 +66,9 @@ while(<IN>) {
 			$sread1org=~tr/[ATCGatcg]/[TAGCTAGC]/;
 			my $sread1=scalar reverse $sread1org;
 			my $sread2=substr($seq,($pos+$tmp_insertSize-$readlen),$readlen);
-			print OUT ">Truseq_".$newid."_".$id[1]."_".$len."_".$pos."_".$tmp_insertSize."\/1\n";
+			print OUT ">Truseq_".$newid."_".$header."_".$len."_".$pos."_".$tmp_insertSize."\/1\n";
 			print OUT $sread1,"\n";
-			print OUT ">Truseq_".$newid."_".$id[1]."_".$len."_".$pos."_".$tmp_insertSize."\/2\n";
+			print OUT ">Truseq_".$newid."_".$header."_".$len."_".$pos."_".$tmp_insertSize."\/2\n";
 			print OUT $sread2,"\n";
 		}
 	}

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-die "Usage: $0  \"arthurian gtf\"  \"genome_location\"  \"output basename\" \"\(optional\) extend N bases\" " if (@ARGV < 3);
+die "Usage: $0  \"arthurian gtf\"  \"genome_location\"  \"output basename\" \"\(optional\) extend N bases\"  \"\(optional\)remove_seq_with_N==1\" " if (@ARGV < 3);
 # store postion of exons and orders.
 # output mRNA sequences together with exon sequences
 # put extended sequences in lower case
@@ -11,6 +11,9 @@ my $genome=$ARGV[1];
 my $fileout=$ARGV[2];
 my $Extend=0;
 if (scalar(@ARGV) > 3) {$Extend=$ARGV[3];}
+my $removeN=1;
+if (scalar(@ARGV) > 4) {$removeN=$ARGV[4];}
+
 my %uniq;   # store all exons according to chr
 my %Exons;  # store the number of exons of each transcript
 open IN,$anno;
@@ -111,7 +114,10 @@ foreach my $chr (sort keys %uniq) {
                 else {$mRNA=$mRNA.$tmp;}
             }
         }
-        print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n";
+        if ($removeN eq 1) {
+            if ($mRNA!~m/N/i) { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
+        }
+        else { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
     }
 }
 foreach my $chr (sort keys %uniq) {
@@ -185,7 +191,10 @@ foreach my $chr (sort keys %uniq) {
                 else {$mRNA=$mRNA.$tmp;}
             }
         }
-        print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n";
+        if ($removeN eq 1) {
+            if ($mRNA!~m/N/i) { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
+        }
+        else { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
     }
 }
 foreach my $chr (sort keys %uniq) {
@@ -259,7 +268,10 @@ foreach my $chr (sort keys %uniq) {
                 else {$mRNA=$mRNA.$tmp;}
             }
         }
-        print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n";
+        if ($removeN eq 1) {
+            if ($mRNA!~m/N/i) { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
+        }
+        else { print OUT1 ">".$gene."___".$biotype,"\n",$mRNA,"\n"; }
     }
 }
 if ($f eq 1) {print "\t=======\tyes\n";}

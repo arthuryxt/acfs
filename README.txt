@@ -39,6 +39,7 @@ Scroll down to section "6. Example" for a real-world example.
 4. Build gtf and pseudo-transcript for results from step3
 5. Map all Tophat2-unmapped-reads to pseudo-transcipts and estimate the abundance of circRNAs
 6. Generate bed track for visulization
+7. Optional search of trans-splicing events
 ========= 1. pipeline description ========
 
 
@@ -91,7 +92,7 @@ perl -e 'print join("\t","UNMAP_expr","UNMAP_expr"),"\n";' >> SPEC_example.txt
 #9# the length of your sequencing reads
 perl -e 'print join("\t","Seq_len","150"),"\n";' >> SPEC_example.txt
 
-# These 13 parameters are optional:
+# These 16 parameters are optional:
 #10# the minimum distance of a back-splice (default = 100). The smaller this value, the more likely you can find circles from short exons
 perl -e 'print join("\t","minJump","100"),"\n";' >> SPEC_example.txt
 #11# the maximum distance of a back-splice (default = 1000000). The larger this value, the more likely you can find circles from long genes
@@ -116,6 +117,12 @@ perl -e 'print join("\t","Strandness","no"),"\n";' >> SPEC_example.txt
 perl -e 'print join("\t","Thread","30"),"\n";' >> SPEC_example.txt
 #21# pre-defined circle annotation in bed6 or bed12 format (default = "no", to increase sensitivity for lowly expressed circRNAs please include bed12 files of annotated one, e.g. merge the bed files from GSE61991)
 perl -e 'print join("\t","pre_defined_circle_bed","no"),"\n";' >> SPEC_example.txt
+#22# run trans-splicing reads (currently restricted to trans-splicing on different chromosomes, possible due to translocation; although trans-splicing on the same chromosome is not impossible)
+perl -e 'print join("\t","Search_trans_splicing","yes"),"\n";' >> SPEC_example.txt
+#23# use blat to discard false positives results from gene duplication
+perl -e 'print join("\t","blat_search","yes"),"\n";' >> SPEC_example.txt
+#24# the full path to the executable blat, such as "/usr/bin/blat/blat", it is ignored if the blat_search option is set to no. 
+perl -e 'print join("\t","blat_path","blat"),"\n";' >> SPEC_example.txt
 
 # make Pipeline Bash file
 perl ~/ACF/ACF_MAKE.pl SPEC_example.txt BASH_example.sh
@@ -213,7 +220,23 @@ circle_candidates_CBR.bed12      # low-confident circles (could still be true)
 # expression(readcounts) table for circRNAs, with circRNAs in rows and samples in columns
 circle_candidates_MEA.expr       
 circle_candidates_CBR.expr
+
+#_7_# optional search of trans-splicing:
+unmap.trans.splicing.tsloci.anno # annotation for the trans-splicing events
+unmap.trans.splicing.tsloci.fa   # putative sequences around the trans-splicing sites
+if you find two rows where the 3rd column and the 4th column having identical but exchanged gene id, it suggest a possible fusion circRNA.
+
+How to simulate 10 fusion circRNAs?
+perl /path-to-ACF/simulate_gtf_for_fusion_circRNA.pl <hg19.gtf> <simu_fusion.gtf> <10>
+perl /path-to-ACF/get_split_exon_border_biotype_genename.pl <simu_fusion.gtf> <simu_fusion.agtf>
+perl /path-to-ACF/get_seq_from_agtf.pl <simu_fusion.agtf> </full_path_to_chromosomes_seqs/> <simu_fusion.pseudo>
+
+How to simulate 10 reads from each fusion circRNA?
+perl /path-to-ACF/simulate_reads_for_fusion_circRNA.pl <simu_fusion.pseudo.gene.fa> <simu_fusion_circRNA.fa>
 ========== 5. Tutorial ==========
+
+
+
 
 
 ========== 6. Example ==========
@@ -248,5 +271,6 @@ Update on 2015-09-17 :
    Added a small real-world example.
 Update on 2016-01-27
    Performance improvement and add scripts for simulation
-Expecting a much faster standalone version soon...
+Update on 2016-05-06
+   Added extension for fining trans-splicing evidence, which can be used to identify fusion-circRNAs
 ========== Change Log ==========

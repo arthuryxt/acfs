@@ -15,7 +15,10 @@ open IN, $filein1;
 open OUT,">".$fileout;
 while(<IN>) {
 	chomp;
-	my @id=split("___",$_);
+	s/^>//;
+	my $header=$_;	# >ENSMUSG00000000544___ENSMUST00000027847___processed_transcript
+	my @id=split("___",$header);
+	if (scalar(@id) > 1) { $header=$id[1];}
 	my $seq=<IN>;
 	chomp $seq;
 	my $len=length($seq);
@@ -25,7 +28,7 @@ while(<IN>) {
 			my $sreadorg=substr($seq,$pos,$readlen);
 			$sreadorg=~tr/[ATCGatcg]/[TAGCTAGC]/;
 			my $sread=scalar reverse $sreadorg;
-			print OUT ">Truseq_".$newid."_".$id[1]."_".$len."_".$pos."\/1\n";
+			print OUT ">Truseq_".$newid."_".$header."_".$len."_".$pos."\/1\n";
 			print OUT $sread,"\n";
 		}
 	}

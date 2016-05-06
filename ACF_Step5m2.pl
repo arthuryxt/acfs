@@ -10,7 +10,6 @@ my $MAS=30;
 if (scalar(@ARGV) > 4) {$MAS=$ARGV[4];}
 my %OK;
 my %OKinfo;
-
 open IN0, $filetmp;
 while(<IN0>) {
     chomp;
@@ -106,7 +105,8 @@ foreach my $id (sort keys %uniq1) {
     my @info=split("\t",$id."\t".$template);
     for(@a) {
 		my $read=$_;
-		print OUT11 $OKinfo{$read},"\n";
+        if (exists $OKinfo{$read}) { print OUT11 $OKinfo{$read},"\n"; }
+        else  {print OUT11 $read,"\n"; }
 		my @b=split("\t",$Anno{$read});
 		$info[1]=$Gname{$id};
 		for(my $i=2; $i<$Nr; $i++) {
@@ -127,7 +127,8 @@ foreach my $id (sort keys %uniq3) {
     my @info=split("\t",$id."\t".$template);
     for(@a) {
 		my $read=$_;
-		print OUT31 $OKinfo{$read},"\n";
+        if (exists $OKinfo{$read}) { print OUT31 $OKinfo{$read},"\n"; }
+        else  {print OUT31 $read,"\n"; }
 		my @b=split("\t",$Anno{$read});
 		$info[1]=$Gname{$id};
 		for(my $i=2; $i<$Nr; $i++) {

@@ -9,7 +9,6 @@ my $cutoff=0.9;
 if (scalar(@ARGV) > 3) {$cutoff=$ARGV[3];}
 if (($cutoff <= 0) or ($cutoff >=1 )) { die "cutoff must be within (0,1) !" }
 my %uniq;   # store processed ID
-
 open IN, $filein;
 open OUT,">".$fileout.".tmp";
 open OUT1,">".$fileout.".1";    # single hit
@@ -60,10 +59,12 @@ while(<IN>) {
             my @CIGAR_va=($a[5]=~m/\d+/g);
             my $start=0;
             my $length=0;
+            my $glength=0;
             my $Nr=scalar(@CIGAR_op);
             if ($strand eq "+") {
                 for(my $i=0; $i<$Nr; $i++){
-                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; }
+                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; $glength+=$CIGAR_va[$i];}
+                    elsif ($CIGAR_op[$i] eq "D") {$glength=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "S") {
                         if (($start > 0) or ($length > 0)) {last;}
@@ -73,8 +74,9 @@ while(<IN>) {
             }
             else {
                 for(my $i=$Nr-1; $i>=0; $i--){
-                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i];}
-                    elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i];}
+                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; $glength+=$CIGAR_va[$i];}
+                    elsif ($CIGAR_op[$i] eq "D") {$glength+=$CIGAR_va[$i];}
+                    elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "S") {
                         if (($start > 0) or ($length > 0)) {last;}
                         $start=$CIGAR_va[$i];
@@ -106,10 +108,12 @@ while(<IN>) {
             my @CIGAR_va=($tmp[2]=~m/\d+/g);
             my $start=0;
             my $length=0;
+            my $glength=0;
             my $Nr=scalar(@CIGAR_op);
             if ($strandy eq "+") {
                 for(my $i=0; $i<$Nr; $i++){
-                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; }
+                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; $glength+=$CIGAR_va[$i]; }
+                    elsif ($CIGAR_op[$i] eq "D") {$glength+=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "S") {
                         if (($start > 0) or ($length > 0)) {last;}
@@ -119,8 +123,9 @@ while(<IN>) {
             }
             else {
                 for(my $i=$Nr-1; $i>=0; $i--){
-                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i];}
-                    elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i];}
+                    if ($CIGAR_op[$i] eq "M") {$length+=$CIGAR_va[$i]; $glength+=$CIGAR_va[$i];}
+                    elsif ($CIGAR_op[$i] eq "D") {$glength+=$CIGAR_va[$i];}
+                    elsif ($CIGAR_op[$i] eq "I") {$length+=$CIGAR_va[$i]; }
                     elsif ($CIGAR_op[$i] eq "S") {
                         if (($start > 0) or ($length > 0)) {last;}
                         $start=$CIGAR_va[$i];
@@ -130,7 +135,7 @@ while(<IN>) {
             if (exists $anno{$tmp[0]}{$start}) {}
             else {
                 $Chr{$tmp[0]}++;
-                $anno{$tmp[0]}{$start}=join("\t",$length,$tmp[1],($tmp[1]+$length),$strandy);
+                $anno{$tmp[0]}{$start}=join("\t",$length,$tmp[1],($tmp[1]+$glength),$strandy);
             }
         }
         # pick the most-hit chromosome

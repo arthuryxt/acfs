@@ -101,7 +101,7 @@ Simply unpack the ACFS package.
 # Parameters
 There are nine mandatory parameters to run ACFS in a basic mode, searching for fusion-circRNAs need to be enabled. Modify the config file "SPEC_example.txt" accordingly.
 
-Mandatory paramters:
+Mandatory paramters:  
 Parameter | value | Note
 --------- | ----- | ----
 BWA_folder | /home/bin/bwa037a/ | path of the folder of bwa
@@ -114,7 +114,7 @@ UNMAP | UNMAP | the collapsed fasta file
 UNMAP_expr | UNMAP_expr | the expression of the collasped reads
 Seq_len | 150 | length of sequencing reads
 
-Optional parameters, the values in below are set as default:
+Optional parameters, the values in below are set as default:  
 Parameter | value | Note
 --------- | ----- | ----
 Thread | 16 | number of threads used in bwa
@@ -175,20 +175,20 @@ bash BASH_example.sh
 1. pre-processing for sequencing reads  
     1A. **_for single-end RNA-Seq only_**. Note this sample is from mouse, therefore mouse annotation should be used. (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
     ```
-    wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852583/SRR1772422/SRR1772422.sra
-    fastq-dump.2 --fasta 0 --split-files SRR1772422.sra
-    perl change_fastq_header.pl SRR1772422.fasta SRR1772422.fa Truseq_HippoSyn
+    wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852583/SRR1772422/SRR1772422.sra  
+    fastq-dump.2 --fasta 0 --split-files SRR1772422.sra  
+    perl change_fastq_header.pl SRR1772422.fasta SRR1772422.fa Truseq_HippoSyn  
     perl Truseq_merge_unique_fa.pl UNMAP newid SRR1772422.fa
     ```  
     1B. **_for paired-end RNA-Seq only_**. Note this sample is from human, therefore human annotation should be used. (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
     ```
-    wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX218%2FSRX218203/SRR650317/SRR650317.sra
-    fastq-dump.2 --fasta 0 --split-files SRR650317.sra
-    perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317left
-    perl change_fastq_header.pl SRR650317_2.fasta SRR650317_2.fa Truseq_SRR650317right
-    perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa
-    perl -ne 'chomp; if(m/^>/){s/^>//; print ">rc".$_,"\n";}else{my $t=$_; $t=~tr/[ATCG]/[TAGC]/; my $r=scalar reverse $t; print $r,"\n";}' UNMAP1 > UNMAP1.rc
-    cat UNMAP1 UNMAP1.rc > UNMAP
+    wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX218%2FSRX218203/SRR650317/SRR650317.sra  
+    fastq-dump.2 --fasta 0 --split-files SRR650317.sra  
+    perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317left  
+    perl change_fastq_header.pl SRR650317_2.fasta SRR650317_2.fa Truseq_SRR650317right  
+    perl Truseq_merge_unique_fa.pl UNMAP newid SRR650317_1.fa SRR650317_2.fa  
+    perl -ne 'chomp; if(m/^>/){s/^>//; print ">rc".$_,"\n";}else{my $t=$_; $t=~tr/[ATCG]/[TAGC]/; my $r=scalar reverse $t; print $r,"\n";}' UNMAP1 > UNMAP1.rc  
+    cat UNMAP1 UNMAP1.rc > UNMAP  
     perl -e 'open IN,"UNMAP_expr1"; my $line=<IN>; print $line; while(<IN>){chomp; my @a=split("\t",$_); print join("\t",@a),"\n"; $a[0]="rc".$a[0]; print join("\t",@a),"\n";}' > UNMAP_expr
     ```
     1C. **_for single-end and paired-end RNA-Seq unmapped reads_**.  

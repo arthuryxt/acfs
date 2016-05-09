@@ -101,7 +101,8 @@ Simply unpack the ACFS package.
 # Parameters
 There are nine mandatory parameters to run ACFS in a basic mode, searching for fusion-circRNAs need to be enabled. Modify the config file "SPEC_example.txt" accordingly.
 
-Mandatory paramters:  
+Mandatory paramters:
+
 | Parameter | value | Note | 
 | --------- | ----- | ---- | 
 | BWA_folder | /home/bin/bwa037a/ | path of the folder of bwa | 
@@ -114,7 +115,8 @@ Mandatory paramters:
 | UNMAP_expr | UNMAP_expr | the expression of the collasped reads | 
 | Seq_len | 150 | length of sequencing reads | 
 
-Optional parameters, the values in below are set as default:  
+Optional parameters, the values in below are set as default:
+
 | Parameter | value | Note |
 | --------- | ----- | ---- |
 | Thread | 16 | number of threads used in bwa |

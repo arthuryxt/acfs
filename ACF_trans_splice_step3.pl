@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 die "Usage: $0  \"parsed.tmp\"   \"unmap.trans.splicing\"   \"expr\"    \"\(optional\) min_AS\"" if (@ARGV < 3);
+# use Scalar::Util qw(looks_like_number);
 # to estimate the expresison of circs after parsed remap
 my $filetmp=$ARGV[0];	# unmap.parsed.tmp
 my $filein1=$ARGV[1];	# unmap.trans.splicing
@@ -89,6 +90,7 @@ foreach my $id (sort keys %uniq1) {
 		$info[1]=$Gname{$id};
 		for(my $i=2; $i<$Nr; $i++) {
 		    $info[$i]+=$b[$i-1];
+            #if (!looks_like_number($b[$i-1])) {print $id,"\t",$uniq1{$id},"\n",$Anno{$read},"\n";}
 		}
     }
     print OUT1 join("\t",@info),"\n";

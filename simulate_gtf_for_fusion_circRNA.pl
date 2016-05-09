@@ -1,20 +1,21 @@
 #!/usr/bin/perl -w
 use strict;
-die "Usage: $0  \"input_gtf\"   \"output\"  \"\(optional\)Nr_fusion_transcripts==10\"   \"\(optional\)min_Exons==5\"  \"\(optional\)Nr_circRNA_per_transcript==2\"    " if (@ARGV < 2);
+die "Usage: $0  \"input_gtf\"   \"output\"  \"\(optional\)Nr_fusion_transcripts==10\"   \"\(optional\)min_Exons==5\"  \"\(optional\)minExonLen==100\"    " if (@ARGV < 2);
 my $gtf=$ARGV[0];
 my $fileout=$ARGV[1];
 my $NrFT=10;
 if (scalar(@ARGV) > 2) { $NrFT=$ARGV[2]; }
 my $min_Exs=5;
 if (scalar(@ARGV) > 3) { $min_Exs=$ARGV[3]; }
-my $GenerateNr=2;
-if (scalar(@ARGV) > 4) { $GenerateNr=$ARGV[4]; }
+my $minExonLen=100;
+if (scalar(@ARGV) > 4) { $minExonLen=$ARGV[4]; }
 my %uniq;
 my %biotype;
 my %Gname;
 my %ExonCnt;
 open IN,$gtf;
 my @Gid;
+my %minExLen;
 my $gcnt=0;
 while(<IN>) {
 	chomp;
@@ -35,7 +36,7 @@ while(<IN>) {
             elsif ($b[$i] eq "gene_name") {$gene_name=$b[$i+1];}
             elsif ($b[$i] eq "gene_biotype") {$gene_biotype=$b[$i+1];}
         }
-		if ($gene_id=~m/^NR/) { next; }
+		if ($gene_id=~m/^NR_/) { next; }
         if ($gene_name eq "") {$gene_name=$gene_id;}
 		if ($transcript_id eq "") {$transcript_id=$gene_id;}
         my $id=$gene_id."\t".$transcript_id."\t".$a[0]."\t".$a[6];
@@ -44,7 +45,12 @@ while(<IN>) {
             $Gname{$id}=$gene_name;
 			$Gid[$gcnt]=$id;
 			$gcnt++;
+			$minExLen{$id}=$a[4]-$a[3];
         }
+		else {
+			my $tmplen=$a[4]-$a[3];
+			if ($tmplen < $minExLen{$id}) { $minExLen{$id}=$tmplen; }
+		}
 		$uniq{$id}{$a[3]}=$a[4];
 		$ExonCnt{$id}++;
     }
@@ -54,11 +60,11 @@ open(OUT, ">".$fileout);
 my %circ;
 for (my $i=1; $i<=$NrFT; $i++) {
 	my $left_gid=int(rand($gcnt-1));
-	while ($ExonCnt{$Gid[$left_gid]} < $min_Exs) { $left_gid=int(rand($gcnt-1)); }
+	while (($ExonCnt{$Gid[$left_gid]} < $min_Exs) or ($minExLen{$Gid[$left_gid]} <= $minExonLen)) { $left_gid=int(rand($gcnt-1)); }
 	my @aL=split("\t",$Gid[$left_gid]);		# Gid	Tid	chr	strand
 	my $right_gid=int(rand($gcnt-1));
 	my @aR=split("\t",$Gid[$right_gid]);	# Gid	Tid	chr	strand
-	while (($left_gid eq $right_gid) or ($ExonCnt{$Gid[$right_gid]} < $min_Exs) or ($aL[2] eq $aR[2])) {
+	while (($left_gid eq $right_gid) or ($ExonCnt{$Gid[$right_gid]} < $min_Exs) or ($aL[2] eq $aR[2]) or ($minExLen{$Gid[$right_gid]} <= $minExonLen)) {
 		$right_gid=int(rand($gcnt-1));
 		@aR=split("\t",$Gid[$right_gid]);
 	}

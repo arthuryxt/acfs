@@ -43,13 +43,13 @@ foreach my $id (keys %uniq) {
             if ($strandness eq "-") {
                 $tmpseq=~tr/[atcgATCG]/[TAGCTAGC]/;
                 my $rc=scalar reverse $tmpseq;
-                print OUT ">Truseq_circ_".$id."__1__2__".$i."__1","\n",$rc,"\n"; 
+                print OUT ">Truseq_fcirc_".$id."__1__2__".$i."__1","\n",$rc,"\n"; 
             }
-            else { print OUT ">Truseq_circ_".$id."__1__2__".$i."__1","\n",$tmpseq,"\n";  }
+            else { print OUT ">Truseq_fcirc_".$id."__1__2__".$i."__1","\n",$tmpseq,"\n";  }
                    
         }
-        $tmp2=substr($seq2,(0-$readLen+$border));
-        $tmp1=substr($seq1,0,($readLen-$border));
+        $tmp2=uc substr($seq2,(0-$readLen+$border));
+        $tmp1=uc substr($seq1,0,($readLen-$border));
         $tmp=$tmp2.$tmp1;
         print OUT1 ">".$id."__2__1","\n",$tmp,"\n";
         for(my $i=0; $i<$Nr; $i++){
@@ -57,9 +57,9 @@ foreach my $id (keys %uniq) {
             if ($strandness eq "-") {
                 $tmpseq=~tr/[atcgATCG]/[TAGCTAGC]/;
                 my $rc=scalar reverse $tmpseq;
-                print OUT ">Truseq_circ_".$id."__2__1__".$i."__1","\n",$rc,"\n"; 
+                print OUT ">Truseq_fcirc_".$id."__2__1__".$i."__1","\n",$rc,"\n"; 
             }
-            else { print OUT ">Truseq_circ_".$id."__2__1__".$i."__1","\n",$tmpseq,"\n";  }
+            else { print OUT ">Truseq_fcirc_".$id."__2__1__".$i."__1","\n",$tmpseq,"\n";  }
                    
         }
     }

@@ -19,8 +19,8 @@ my $minJump=100;
 my $maxJump=1000000;
 my $minSSSum=10;
 my $minSamplecnt=1;
-my $minReadcnt=2;
-my $MAS=30;
+my $minReadcnt=1;
+my $MAS=20;
 my $coverage=0.9;
 my $Junc=6;
 my $ER=0.05;
@@ -32,6 +32,7 @@ my $do_blat_search="no";
 my $ts_coverage=$coverage;
 my $ts_MAS=0;
 my $ts_minSSSum=$minSSSum;
+my $ts_maxSpan=1000000;
 # check if all parameters are set
 if (!exists $SPEC{"BWA_folder"}) { die "BWA_folder must by specified in the config_file $filein";}
 if (!exists $SPEC{"BWA_genome_Index"}) { die "BWA_genome_Index must by specified in the config_file $filein";}
@@ -48,7 +49,6 @@ if (exists $SPEC{"maxJump"}) { $maxJump=$SPEC{"maxJump"}; }
 if (exists $SPEC{"minSplicingScore"}) { $minSSSum=$SPEC{"minSplicingScore"}; }
 if (exists $SPEC{"minSampleCnt"}) { $minSamplecnt=$SPEC{"minSampleCnt"}; }
 if (exists $SPEC{"minReadCnt"}) { $minReadcnt=$SPEC{"minReadCnt"}; }
-if (exists $SPEC{"Thread"}) { $thread=$SPEC{"Thread"}; }
 if (exists $SPEC{"minMappingQuality"}) { $MAS=$SPEC{"minMappingQuality"}; }
 if (exists $SPEC{"Coverage"}) { $coverage=$SPEC{"Coverage"}; }
 if (exists $SPEC{"minSpanJunc"}) { $Junc=$SPEC{"minSpanJunc"}; }
@@ -64,6 +64,7 @@ if ($blat_path eq "") { $do_blat_search="no"; }
 if (exists $SPEC{"trans_splicing_coverage"}) { $ts_coverage=$SPEC{"trans_splicing_coverage"}; }
 if (exists $SPEC{"trans_splicing_minMappingQuality"}) { $ts_MAS=$SPEC{"trans_splicing_minMappingQuality"}; }
 if (exists $SPEC{"trans_splicing_minSplicingScore"}) { $ts_minSSSum=$SPEC{"trans_splicing_minSplicingScore"}; }
+if (exists $SPEC{"trans_splicing_maxSpan"}) { $ts_maxSpan=$SPEC{"trans_splicing_maxSpan"}; }
 
 
 my $command="";
@@ -212,6 +213,8 @@ if ($search_trans_splicing eq "yes") {
         print OUT $command,"\n";
         $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step3.pl unmap.parsed.tmp unmap.trans.splicing ".$SPEC{"UNMAP_expr"};
         print OUT $command,"\n";
+        $command="perl ".$SPEC{"ACF_folder"}."/ACF_fusion_circRNAs.pl fusion_circRNAs unmap.trans.splicing ".$ts_maxSpan." unmap.trans.splicing.expr";
+        print OUT $command,"\n";
     }
     else {
         $command=$SPEC{"BWA_folder"}."/bwa index unmap.trans.splicing.tsloci.fa";
@@ -222,14 +225,13 @@ if ($search_trans_splicing eq "yes") {
         print OUT $command,"\n";
         $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step3.pl unmap.parsed.tmp unmap.trans.splicing ".$SPEC{"UNMAP_expr"};
         print OUT $command,"\n";
+        $command="perl ".$SPEC{"ACF_folder"}."/ACF_fusion_circRNAs.pl fusion_circRNAs unmap.trans.splicing ".$ts_maxSpan." unmap.trans.splicing.expr";
+        print OUT $command,"\n";
     }
 
 }
 
-
-
-
-
+print OUT "date\n";
 
 
 close OUT;

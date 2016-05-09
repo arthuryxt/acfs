@@ -34,7 +34,10 @@ for(my $i=0; $i<$fileNR; $i++) {
             my $count=1;
             if ($id=~m/\_\_/) {
                 my @b=split(/\_\_/,$id);
-                if (scalar(@b) > 1) {$count=$b[-1];}
+                if (scalar(@b) > 1) {
+                    my @c=split(/\//,$b[-1]);
+                    $count=$c[-1];
+                }
             }
             if (exists $uniq{$seq}) {
                 $uniq{$seq}{$a[1]}+=$count;
@@ -56,7 +59,10 @@ for(my $i=0; $i<$fileNR; $i++) {
             my $count=1;
             if ($id=~m/\_\_/) {
                 my @b=split(/\_\_/,$id);
-                if (scalar(@b) > 1) {$count=$b[-1];}
+                if (scalar(@b) > 1) {
+                    my @c=split(/\//,$b[-1]);
+                    $count=$c[-1];
+                }
             }
             if (exists $uniq{$seq}) {
                 $uniq{$seq}{$a[1]}+=$count;

@@ -102,42 +102,42 @@ Simply unpack the ACFS package.
 There are nine mandatory parameters to run ACFS in a basic mode, searching for fusion-circRNAs need to be enabled. Modify the config file "SPEC_example.txt" accordingly.
 
 Mandatory paramters:  
-Parameter | value | Note
---------- | ----- | ----
-BWA_folder | /home/bin/bwa037a/ | path of the folder of bwa
-BWA_genome_Index | /data/.../BWAIndex/genome.fa | full path to the index files
-BWA_genome_folder | /data/.../Chromosomes/ | full path to the folder containing **_separeted_** chromosome files
-ACF_folder | /home/bin/ACFS/ | path of the folder of ACFS 
-CBR_folder | /home/bin/ACFS/CB_splice/ | path of the folder for MaxEnt
-Agtf | /data/.../Homo_sapiens.GRCh37.71_split_exon.gtf | processed annotation, see the previous section point-4
-UNMAP | UNMAP | the collapsed fasta file
-UNMAP_expr | UNMAP_expr | the expression of the collasped reads
-Seq_len | 150 | length of sequencing reads
+| Parameter | value | Note | 
+| --------- | ----- | ---- | 
+| BWA_folder | /home/bin/bwa037a/ | path of the folder of bwa | 
+| BWA_genome_Index | /data/.../BWAIndex/genome.fa | full path to the index files | 
+| BWA_genome_folder | /data/.../Chromosomes/ | full path to the folder containing **_separeted_** chromosome files | 
+| ACF_folder | /home/bin/ACFS/ | path of the folder of ACFS | 
+| CBR_folder | /home/bin/ACFS/CB_splice/ | path of the folder for MaxEnt | 
+| Agtf | /data/.../Homo_sapiens.GRCh37.71_split_exon.gtf | processed annotation, see the previous section point-4 | 
+| UNMAP | UNMAP | the collapsed fasta file | 
+| UNMAP_expr | UNMAP_expr | the expression of the collasped reads | 
+| Seq_len | 150 | length of sequencing reads | 
 
 Optional parameters, the values in below are set as default:  
-Parameter | value | Note
---------- | ----- | ----
-Thread | 16 | number of threads used in bwa
-BWA_seed_length | 16 | bwa seed length 
-BWA_min_score | 20 | bwa min score to triger report
-minJump | 100 | the minimum distance of a back-splice. The smaller, the more likely you can find circles from short exons
-maxJump | 1000000 | the maximum distance of a back-splice. The larger, the more likely you can find circles from long genes
-minSplicingScore | 10 | the minimum score for the sum of splicing strength at both splice site, 10 corresponds to 97% of all human/mouse splice site pairs
-minSampleCnt | 1 | the minimum number of samples that detect any given circle
-minReadCnt | 1 | the minimum number of reads (from all samples) that detect any given circle
-minMappingQuality | 20 | the minimum mapping quality of any given sequence
-minSpanJunc | 6 | the minimum number of bases reach beyond the back-splice-site. The larger the less likely of false-positive
-Coverage | 0.9 | the minimum percentage of any given read is aligned. The larger the better
-ErrorRate | 0.05 | the maximum error rate for re-alignment. The smaller the better
-Strandness | - | the strand information of sequencing, must be one of the {+, -, no}
-pre_defined_circle_bed | no | pre-defined circle annotation in bed6 or bed12 format (to increase sensitivity for lowly expressed circRNAs please include bed12 files of annotated one, e.g. merge the bed files from GSE61991)
-Search_trans_splicing | no | set to "yes" to seach for trans-splicing reads
-blat_search | yes | use blat to discard false positives results from gene duplication, turn off by "no"
-blat_path | blat | full path to the executable, such as "/usr/bin/blat/blat", it is ignored if the blat_search option is set to no
-trans_splicing_coverage | 0.9 | same as minMappingQuality
-trans_splicing_minMappingQuality | 0 | the minimum mapping quality of any given sequence
-trans_splicing_minSplicingScore | 10 | same as minSplicingScore
-trans_splicing_maxSpan | 1000000 | the maximum distance to complete a fusion circRNA
+| Parameter | value | Note |
+| --------- | ----- | ---- |
+| Thread | 16 | number of threads used in bwa |
+| BWA_seed_length | 16 | bwa seed length  |
+| BWA_min_score | 20 | bwa min score to triger report |
+| minJump | 100 | the minimum distance of a back-splice. The smaller, the more likely you can find circles from short exons |
+| maxJump | 1000000 | the maximum distance of a back-splice. The larger, the more likely you can find circles from long genes |
+| minSplicingScore | 10 | the minimum score for the sum of splicing strength at both splice site, 10 corresponds to 97% of all human/mouse splice site pairs |
+| minSampleCnt | 1 | the minimum number of samples that detect any given circle |
+| minReadCnt | 1 | the minimum number of reads (from all samples) that detect any given circle |
+| minMappingQuality | 20 | the minimum mapping quality of any given sequence |
+| minSpanJunc | 6 | the minimum number of bases reach beyond the back-splice-site. The larger the less likely of false-positive |
+| Coverage | 0.9 | the minimum percentage of any given read is aligned. The larger the better |
+| ErrorRate | 0.05 | the maximum error rate for re-alignment. The smaller the better |
+| Strandness | - | the strand information of sequencing, must be one of the {+, -, no}  |
+| pre_defined_circle_bed | no | pre-defined circle annotation in bed6 or bed12 format (to increase sensitivity for lowly expressed circRNAs please include bed12 files of annotated one, e.g. merge the bed files from GSE61991) |
+| Search_trans_splicing | no | set to "yes" to seach for trans-splicing reads |
+| blat_search | yes | use blat to discard false positives results from gene duplication, turn off by "no" |
+| blat_path | blat | full path to the executable, such as "/usr/bin/blat/blat", it is ignored if the blat_search option is set to no |
+| trans_splicing_coverage | 0.9 | same as minMappingQuality |
+| trans_splicing_minMappingQuality | 0 | the minimum mapping quality of any given sequence |
+| trans_splicing_minSplicingScore | 10 | same as minSplicingScore |
+| trans_splicing_maxSpan | 1000000 | the maximum distance to complete a fusion circRNA |
 
 
 # run ACFS

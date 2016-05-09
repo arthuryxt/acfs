@@ -174,7 +174,8 @@ bash BASH_example.sh
 
 
 # Tutorial
-1. pre-processing for sequencing reads  
+1. pre-processing for sequencing reads
+
     1A. **_for single-end RNA-Seq only_**. Note this sample is from mouse, therefore mouse annotation should be used. (Feasible but not a good idea in practice, since you don't want to map all reads again. Use unmapped reads instead.)
     ```
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX%2FSRX852%2FSRX852583/SRR1772422/SRR1772422.sra  
@@ -204,19 +205,23 @@ bash BASH_example.sh
     perl Truseq_merge_unique_fa.pl UNMAP newid newNAME.fa
     ```
 2. prepare for annotation, if you haven't done so
+
     ```
     perl get_split_exon_border_biotype_genename.pl /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/genes.gtf /data/iGenome/human/Ensembl/GRCh37/Annotation/Genes/Homo_sapiens.GRCh37.71_split_exon.gtf
     ```
 3. modify the config file SPEC_example.txt accordingly.
 4. generate ACFS pipeline
+
     ```
     perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
     ```
 5. run ACFS
+
     ```
     nohup bash BASH_example.sh &
     ```
 6. take a look at the results when finished :
+
     - circle_candidates_MEA.bed12      # circRNAs back-splice at annotated boundarys of exon(s)
     - circle_candidates_CBR.bed12      # circRNAs back-splice at un-annotated boundarys of exon(s)  
     And the expression(readcounts) table for circRNAs, with circRNAs in rows and samples in columns
@@ -228,35 +233,42 @@ bash BASH_example.sh
 
 
 # A few useful scripts for simulation  
-To see the usage, simply run the perl scripts with no arguments.
+To see the usage, simply run the perl scripts with no arguments.  
+
 1. simulating SE reads from linear transcripts
     ```
     simulate_SE_reads_from_linear.pl
     ```
+
 2. simulating PE reads from linear transcripts
     ```
     simulate_PE_reads_from_linear.pl
     ```
+
 3. simulating circRNAs
     ```
     simulate_gtf_for_circRNA.pl
     get_split_exon_border_biotype_genename.pl
     get_seq_from_agtf.pl
     ```
+
 4. simulating SE reads from circRNAs
     ```
     simulate_SE_reads_from_circRNA.pl
     ```
+
 5. simulating PE reads from circRNAs
     ```
     simulate_PE_reads_from_circRNA.pl
     ```
+
 6. simulating fusion-circRNAs
     ```
     simulate_gtf_for_fusion_circRNA.pl
     get_split_exon_border_biotype_genename.pl
     get_seq_from_agtf.pl
     ```
+
 7. simulating SE reads from fusion-circRNAs
     ```
     simulate_reads_for_fusion_circRNA.pl

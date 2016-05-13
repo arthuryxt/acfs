@@ -77,47 +77,9 @@ foreach my $id (keys %uniq) {
                         if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
                     }
                 }
-                elsif(($b[1] < $b2[4]) and ($b[4] > $b2[1])) {
-                    if ($print_exp > 0) {
-                        if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
-                            $cnt++;
-                            my @exp1=split("\t",$EXPR{$a[0]});
-                            my @exp2=split("\t",$EXPR{$a2[0]});
-                            my $expr=$exp1[2] > $exp2[2] ? $exp2[2] : $exp1[2];
-                            for (my $i=3; $i<scalar(@exp1); $i++) {
-                                $expr=$expr."\t".($exp1[$i] > $exp2[$i] ? $exp2[$i] : $exp1[$i]);
-                            }
-                            print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\t",$expr,"\n";
-                            if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                        }
-                    }
-                    else{
-                        print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\n";
-                        if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                    }
-                }
             }
             elsif (($b[2] eq "-") and ($b[5] eq "-") ){
-                if (($b[1] > $b2[4]) and ($b[4] < $b2[1])) {
-                    if ($print_exp > 0) {
-                        if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
-                            $cnt++;
-                            my @exp1=split("\t",$EXPR{$a[0]});
-                            my @exp2=split("\t",$EXPR{$a2[0]});
-                            my $expr=$exp1[2] > $exp2[2] ? $exp2[2] : $exp1[2];
-                            for (my $i=3; $i<scalar(@exp1); $i++) {
-                                $expr=$expr."\t".($exp1[$i] > $exp2[$i] ? $exp2[$i] : $exp1[$i]);
-                            }
-                            print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\t",$expr,"\n";
-                            if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                        }
-                    }
-                    else{
-                        print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\n";
-                        if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                    }
-                }
-                elsif(($b[1] < $b2[4]) and ($b[4] > $b2[1])) {
+                if(($b[1] < $b2[4]) and ($b[4] > $b2[1])) {
                     if ($print_exp > 0) {
                         if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
                             $cnt++;
@@ -157,47 +119,9 @@ foreach my $id (keys %uniq) {
                         if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
                     }
                 }
-                elsif(($b[1] > $b2[4]) and ($b[4] > $b2[1])) {
-                    if ($print_exp > 0) {
-                        if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
-                            $cnt++;
-                            my @exp1=split("\t",$EXPR{$a[0]});
-                            my @exp2=split("\t",$EXPR{$a2[0]});
-                            my $expr=$exp1[2] > $exp2[2] ? $exp2[2] : $exp1[2];
-                            for (my $i=3; $i<scalar(@exp1); $i++) {
-                                $expr=$expr."\t".($exp1[$i] > $exp2[$i] ? $exp2[$i] : $exp1[$i]);
-                            }
-                            print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\t",$expr,"\n";
-                            if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                        }
-                    }
-                    else{
-                        print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\n";
-                        if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                    }
-                }
             }
             elsif (($b[2] eq "+") and ($b[5] eq "-") ){
-                if (($b[1] < $b2[4]) and ($b[4] < $b2[1])) {
-                    if ($print_exp > 0) {
-                        if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
-                            $cnt++;
-                            my @exp1=split("\t",$EXPR{$a[0]});
-                            my @exp2=split("\t",$EXPR{$a2[0]});
-                            my $expr=$exp1[2] > $exp2[2] ? $exp2[2] : $exp1[2];
-                            for (my $i=3; $i<scalar(@exp1); $i++) {
-                                $expr=$expr."\t".($exp1[$i] > $exp2[$i] ? $exp2[$i] : $exp1[$i]);
-                            }
-                            print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\t",$expr,"\n";
-                            if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                        }
-                    }
-                    else{
-                        print OUT "fusion-circ-".$cnt,"\t",$a[2]."|".$a[3],"\t",$a[0],"\t",$a2[0],"\n";
-                        if ($debug > 0) {print OUT join("\t",@a),"\n",join("\t",@a2),"\n";}
-                    }
-                }
-                elsif(($b[1] > $b2[4]) and ($b[4] > $b2[1])) {
+                if(($b[1] > $b2[4]) and ($b[4] > $b2[1])) {
                     if ($print_exp > 0) {
                         if ((exists $EXPR{$a[0]}) and (exists $EXPR{$a2[0]})){
                             $cnt++;

@@ -39,7 +39,7 @@ while(<IN>) {
 			my $sreadorg=substr($pseq,$pos,$readlen);
 			$sreadorg=~tr/[ATCGatcg]/[TAGCTAGC]/;
 			my $sread=scalar reverse $sreadorg;
-			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."\/1\n";
+			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."_".$i."\/1\n";
 			print OUT $sread,"\n";
 		}
 	}

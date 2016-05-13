@@ -75,9 +75,9 @@ while(<IN>) {
 			$sread1org=~tr/[ATCGatcg]/[TAGCTAGC]/;
 			my $sread1=scalar reverse $sread1org;
 			my $sread2=uc substr($pseq,($end-$readlen),$readlen);
-			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."_".$tmp_insertSize."\/1\n";
+			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."_".$tmp_insertSize."_".$i."\/1\n";
 			print OUT $sread1,"\n";
-			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."_".$tmp_insertSize."\/2\n";
+			print OUT ">Truseq_".$newid."_".$id."_".$len."_".$pos."_".$tmp_insertSize."_".$i."\/2\n";
 			print OUT $sread2,"\n";
 		}
 	}

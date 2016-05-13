@@ -192,12 +192,16 @@ if ($search_trans_splicing eq "yes") {
     $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step2.pl unmap.trans.splicing ".$SPEC{"BWA_genome_folder"}."/ unmap.trans.splicing ".$SPEC{"Seq_len"}." $ts_minSSSum ".$SPEC{"Agtf"};
     print OUT $command,"\n";
     if (($do_blat_search eq "yes") and (-e $SPEC{"BWA_genome_Index"})) {
-        my $newlen=int(1.3*($SPEC{"Seq_len"}));
+        #increasing the -minScore parameter value beyond one-half of the query size has no further effect
+        #my $newlen=int(1.3*($SPEC{"Seq_len"}));
+        my $newlen=$SPEC{"Seq_len"};
         $command=$blat_path." -minScore=".$newlen." -noHead ".$SPEC{"BWA_genome_Index"}." unmap.trans.splicing.tsloci.fa unmap.trans.splicing.tsloci.psl";
         print OUT $command,"\n";
-        $command="perl -ne \'chomp; my \@a=split(\"\\t\",\$_); if(abs(\$a[11]-\$a[12]) > $newlen){print \$a[9],\"\\n\"\;}\' unmap.trans.splicing.tsloci.psl \> unmap.trans.splicing.tsloci.psl.badid";
-        print OUT $command,"\n";
-        $command="sort \-u unmap.trans.splicing.tsloci.psl.badid \> unmap.trans.splicing.tsloci.psl.badids";
+        #$command="perl -ne \'chomp; my \@a=split(\"\\t\",\$_); if(abs(\$a[11]-\$a[12]) > $newlen){print \$a[9],\"\\n\"\;}\' unmap.trans.splicing.tsloci.psl \> unmap.trans.splicing.tsloci.psl.badid";
+        #print OUT $command,"\n";
+        #$command="sort \-u unmap.trans.splicing.tsloci.psl.badid \> unmap.trans.splicing.tsloci.psl.badids";
+        #print OUT $command,"\n";
+        $command="perl ".$SPEC{"ACF_folder"}."/get_linear_id_from_psl.pl unmap.trans.splicing.tsloci.psl unmap.trans.splicing.tsloci.psl.badids";
         print OUT $command,"\n";
         $command="perl ".$SPEC{"ACF_folder"}."/get_selected_from_pool_singleline.pl unmap.trans.splicing.tsloci.psl.badids unmap.trans.splicing.tsloci unmap.trans.splicing.tsloci.good 0 -1";
         print OUT $command,"\n";

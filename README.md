@@ -3,12 +3,13 @@ Accurate CircRNA Finder Suite. Discovering circRNAs from RNA-Seq data.
 
 
 # Overview
-CircRNAs are generated through splicing, or to be precise, back-splicing where the downstream splice donor attact an upstream splice acceptor. Identifying the exact site of back-splice lies in the heart of circRNA discovery.
+CircRNAs are generated through splicing, or to be precise, back-splicing where the downstream splice donor attacks an upstream splice acceptor. Identifying the exact site of back-splice lies in the heart of circRNA discovery.
 
 ACFS first examines and pinpoints the back-splice site from RNA-Seq alignment using a maximal entropy model. The expression of circRNAs is estimated from a second round of alignment to the inferred pseudo circular sequences.
 
 No prior knowledge of gene annotation is needed for ACFS, but reading the coordinates is far less interesting than reading gene names, so circRNAs are annotated using the gene annotation if provided.
 
+ACFS is designed for Single-end RNA-Seq reads. Seeing is believing, we would like to see read directly spanning the back-splice sites. Paired-end data is also supported, albeit with lower sensitivity (if neither of the read ends crosses the back-splice, but the read-pair does).
 
 # Change Log
 - Update on 2016-05-06 :
@@ -97,6 +98,11 @@ Simply unpack the ACFS package.
     - If the reads are actually stransless or pair-ended, please run in parallel original reads and reverse-complemented reads.
     - No pair-end information is used, as the exact junction-site must be supported by a single read. Seeing is believing.
     
+6. For Paired-end data, it is highly recommended to align the reads to genome+transcriptome first (e.g. using Tophat2), and extract the unmapped read (read pairs) using the following script (the fasta header line is also modified)
+    ```
+    perl convert_unmapped_SAM_to_fa_for_acfs.pl <output_file_name> <unmapped.sam> <sample_id>
+    ```
+
 
 # Parameters
 There are nine mandatory parameters to run ACFS in a basic mode, searching for fusion-circRNAs need to be enabled. Modify the config file "SPEC_example.txt" accordingly.
@@ -144,14 +150,13 @@ Optional parameters, the values in below are set as default:
 
 # run ACFS
 1. make Pipeline Bash file
-```
-perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
-```
-
+    ```
+    perl ACF_MAKE.pl SPEC_example.txt BASH_example.sh
+    ```  
 2. find circles
-```
-bash BASH_example.sh
-```
+    ```
+    bash BASH_example.sh
+    ```
 
 
 # Results
@@ -195,11 +200,11 @@ bash BASH_example.sh
     perl -e 'open IN,"UNMAP_expr1"; my $line=<IN>; print $line; while(<IN>){chomp; my @a=split("\t",$_); print join("\t",@a),"\n"; $a[0]="rc".$a[0]; print join("\t",@a),"\n";}' > UNMAP_expr
     ```
     1C. **_for single-end and paired-end RNA-Seq unmapped reads_**.  
-    First align raw RNA-Seq reads to some reference with tools (such as Bowtie/BWA/STAR), obtain a SAM file containing all unmapped reads. For example if you choose Tophat, please convert <unmapped.bam> to <unmapped.sam>. Then run the following command:
+    First align raw RNA-Seq reads to some reference with tools (such as Bowtie/BWA/STAR/Tophat2), obtain a SAM file <unmapped.sam> containing all unmapped reads. For example if you choose Tophat, please convert <unmapped.bam> to <unmapped.sam>. Then run the following command:
     ```
-    perl convert_unmapped_SAM_to_fa_for_acfs.pl unmapped.sam newName newNAME.fa
+    perl convert_unmapped_SAM_to_fa_for_acfs.pl <newNAME.fa> <unmapped.sam> <sample_id>
     ```  
-    where <newName> is the new sample ID that is used to change the fasta/fastq header to ACF style. It could be "Ctrl12" or "TreatA.rep2", your choice. Just remember, there should be NO underscore as "_" in it.  
+    where <sample_id> is the new sample ID that is used to change the fasta/fastq header to ACF style. It could be "Ctrl12" or "TreatA.rep2", your choice. Just remember, there should be NO underscore as "_" in it.  
     <newNAME.fa> is the name of the converted file. Name it whatever you like.
     ```
     perl Truseq_merge_unique_fa.pl UNMAP newid newNAME.fa

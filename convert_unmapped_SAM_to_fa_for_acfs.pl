@@ -1,15 +1,18 @@
 #!/usr/bin/perl -w
 use strict;
-# convert paired-end sam into fasta compling with acfs header format
+# convert paired-end sam into fasta complying with acfs header format, and report also reverse-complementary sequences
 # 2015-08-20 by Arthur
-die "Usage: $0   \"input_sam\"   \"newName\"     \"output\"    \"min_length\(default==60nt\)\"   \"verbose=1\" " if (@ARGV < 3);
-my $filein1=$ARGV[0];   # SRA1234679.unmapped.sam
-my $newName=$ARGV[1];   # Ctrl21
-my $fileout=$ARGV[2];   # Ctrl21.fa
-my $min_len=60;
-if (scalar(@ARGV) > 3) { $min_len=$ARGV[3]; }
+die "Usage: $0   \"output\"   \"input_sam\"   \"newName\"       \"enforce_acfs_header==1_or_0\"    \"min_length\(default==50nt\)\"    \"verbose=1\" " if (@ARGV < 3);
+my $fileout=$ARGV[0];   # Ctrl21.fa
+my $filein1=$ARGV[1];   # SRA1234679.unmapped.sam
+my $newName=$ARGV[2];   # Ctrl21
+my $enforce=1;
+if (scalar(@ARGV) > 3) { $enforce=$ARGV[3]; }
+if (($enforce ne 0) and ($enforce ne 1)) { die "enable acfs header by setting to 1, disable by setting to 0.\n";}
+my $min_len=50;
+if (scalar(@ARGV) > 4) { $min_len=$ARGV[4]; }
 my $verbose=0;
-if (scalar(@ARGV) > 4) { $verbose=$ARGV[4]; }
+if (scalar(@ARGV) > 5) { $verbose=$ARGV[5]; }
 my $Error_rate=0.15;
 
 my %uniq1;
@@ -23,8 +26,20 @@ while (<IN>) {
     my $len=length($a[9]);
     if ($len < $min_len) { next; }
     if ($len > $max_len) { $max_len=$len; }
-    if (exists $uniq1{$a[0]}) { $uniq2{$a[0]}=$a[9];}
-    else { $uniq1{$a[0]}=$a[9]; }
+    if ($a[1] eq 4) {
+        # single-end data
+        $uniq1{$a[0]}=$a[9];
+    }
+    elsif ($a[1] eq 69){
+        # pair-end data, read-1
+        $uniq1{$a[0]}=$a[9];
+    }
+    elsif ($a[1] eq 133){
+        # pair-end data, read-2
+        $uniq2{$a[0]}=$a[9];
+    }
+    #if (exists $uniq1{$a[0]}) { $uniq2{$a[0]}=$a[9];}
+    #else { $uniq1{$a[0]}=$a[9]; }
 }
 open(OUT, ">".$fileout) or die "Cannot write to output : $fileout\n";
 
@@ -185,35 +200,88 @@ sub overlap_pairs($$){
     return $result;
 }
 
-foreach my $id (keys %uniq1) {
-    if (exists $uniq2{$id}) {
-        # there is a counterpart, check if the two overlap
-        if (length($uniq1{$id}) < $max_len) {
-            # the two reads must overlap
-            print OUT ">Truseq_".$newName."_".$id.".1\n",$uniq1{$id},"\n";
-            print OUT ">Truseq_".$newName."_".$id.".2\n",$uniq2{$id},"\n";
+if ($enforce eq 1) {
+    my %reported;
+    foreach my $id (keys %uniq1) {
+        if (exists $uniq2{$id}) {
+            # there is a counterpart, check if the two overlap
+            if (length($uniq1{$id}) < $max_len) {
+                # the two reads must overlap, and one of the two is NOT junction-spanning due to the wrong strandedness
+                print OUT ">Truseq_".$newName."_".$id.".1\n",$uniq1{$id},"\n";
+                print OUT ">Truseq_".$newName."_".$id.".2\n",$uniq2{$id},"\n";
+            }
+            else {
+                my $overlap=overlap_pairs($uniq1{$id},$uniq2{$id});
+                if ($verbose) { print $overlap,"\n"; }
+                my @Overlap=split("\t",$overlap);
+                if (scalar(@Overlap) > 1) {
+                    # the two reads overlaps
+                    print OUT ">Truseq_".$newName."_".$id.".1\n",$Overlap[1],"\n";
+                    print OUT ">Truseq_".$newName."_".$id.".2\n",rev_cpm($Overlap[1]),"\n";
+                }
+                else{
+                    # the two reads are far away from each other
+                    print OUT ">Truseq_".$newName."_".$id.".11\n",$uniq1{$id},"\n";
+                    print OUT ">Truseq_".$newName."_".$id.".12\n",rev_cpm($uniq1{$id}),"\n";
+                    print OUT ">Truseq_".$newName."_".$id.".21\n",$uniq2{$id},"\n";
+                    print OUT ">Truseq_".$newName."_".$id.".22\n",rev_cpm($uniq2{$id}),"\n";
+                }
+            }
         }
         else {
-            my $overlap=overlap_pairs($uniq1{$id},$uniq2{$id});
-            if ($verbose) { print $overlap,"\n"; }
-            my @Overlap=split("\t",$overlap);
-            if (scalar(@Overlap) > 1) {
-                # the two reads overlaps
-                print OUT ">Truseq_".$newName."_".$id.".1\n",$Overlap[1],"\n";
-                print OUT ">Truseq_".$newName."_".$id.".2\n",rev_cpm($Overlap[1]),"\n";
+            print OUT ">Truseq_".$newName."_".$id.".11\n",$uniq1{$id},"\n";
+            print OUT ">Truseq_".$newName."_".$id.".12\n",rev_cpm($uniq1{$id}),"\n";
+        }
+        $reported{$id}=1;
+    }
+    foreach my $id (keys %uniq2){
+        if (!exists $reported{$id}) {
+            print OUT ">Truseq_".$newName."_".$id.".21\n",$uniq1{$id},"\n";
+            print OUT ">Truseq_".$newName."_".$id.".22\n",rev_cpm($uniq1{$id}),"\n";
+        }
+        
+    }
+}
+else {
+        my %reported;
+    foreach my $id (keys %uniq1) {
+        if (exists $uniq2{$id}) {
+            # there is a counterpart, check if the two overlap
+            if (length($uniq1{$id}) < $max_len) {
+                # the two reads must overlap, and one of the two is NOT junction-spanning due to the wrong strandedness
+                print OUT ">".$id.".1\n",$uniq1{$id},"\n";
+                print OUT ">".$id.".2\n",$uniq2{$id},"\n";
             }
-            else{
-                # the two reads are far away from each other
-                print OUT ">Truseq_".$newName."_".$id.".1\n",$uniq1{$id},"\n";
-                print OUT ">Truseq_".$newName."_".$id.".2\n",rev_cpm($uniq1{$id}),"\n";
-                print OUT ">Truseq_".$newName."_".$id.".3\n",$uniq2{$id},"\n";
-                print OUT ">Truseq_".$newName."_".$id.".4\n",rev_cpm($uniq2{$id}),"\n";
+            else {
+                my $overlap=overlap_pairs($uniq1{$id},$uniq2{$id});
+                if ($verbose) { print $overlap,"\n"; }
+                my @Overlap=split("\t",$overlap);
+                if (scalar(@Overlap) > 1) {
+                    # the two reads overlaps
+                    print OUT ">".$id.".1\n",$Overlap[1],"\n";
+                    print OUT ">".$id.".2\n",rev_cpm($Overlap[1]),"\n";
+                }
+                else{
+                    # the two reads are far away from each other
+                    print OUT ">".$id.".11\n",$uniq1{$id},"\n";
+                    print OUT ">".$id.".12\n",rev_cpm($uniq1{$id}),"\n";
+                    print OUT ">".$id.".21\n",$uniq2{$id},"\n";
+                    print OUT ">".$id.".22\n",rev_cpm($uniq2{$id}),"\n";
+                }
             }
         }
+        else {
+            print OUT ">".$id.".11\n",$uniq1{$id},"\n";
+            print OUT ">".$id.".12\n",rev_cpm($uniq1{$id}),"\n";
+        }
+        $reported{$id}=1;
     }
-    else {
-        print OUT ">Truseq_".$newName."_".$id.".1\n",$uniq1{$id},"\n";
-        print OUT ">Truseq_".$newName."_".$id.".2\n",rev_cpm($uniq1{$id}),"\n";
+    foreach my $id (keys %uniq2){
+        if (!exists $reported{$id}) {
+            print OUT ">".$id.".21\n",$uniq1{$id},"\n";
+            print OUT ">".$id.".22\n",rev_cpm($uniq1{$id}),"\n";
+        }
+        
     }
 }
 

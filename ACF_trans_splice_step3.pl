@@ -74,13 +74,13 @@ while(<IN4>) {
 
 my $Nr=scalar(@Header);
 my $template=0;
-for(my $i=2; $i<$Nr; $i++) {$template=$template."\t0";}
+for(my $i=2; $i<=$Nr; $i++) {$template=$template."\t0";}
 
 
 
 open OUT1,">".$filein1.".expr";
 open OUT11,">".$filein1.".newid";
-print OUT1 $header,"\n";
+print OUT1 join("\t",@Header),"\n";
 foreach my $id (sort keys %uniq1) {
     my @a=split("\t",$uniq1{$id});
     my @info=split("\t",$id."\t".$template);
@@ -90,7 +90,7 @@ foreach my $id (sort keys %uniq1) {
         else  {print OUT11 $read,"\n"; }
 		my @b=split("\t",$Anno{$read});
 		$info[1]=$Gname{$id};
-		for(my $i=2; $i<$Nr; $i++) {
+		for(my $i=2; $i<=$Nr; $i++) {
 		    $info[$i]+=$b[$i-1];
             #if (!looks_like_number($b[$i-1])) {print $id,"\t",$uniq1{$id},"\n",$Anno{$read},"\n";}
 		}

@@ -96,7 +96,7 @@ while(<IN4>) {
 
 my $Nr=scalar(@Header);
 my $template=0;
-for(my $i=2; $i<$Nr; $i++) {$template=$template."\t0";}
+for(my $i=2; $i<=$Nr; $i++) {$template=$template."\t0";}
 
 open OUT1,">".$filein1.".expr";
 open OUT11,">".$filein1.".newid";
@@ -110,7 +110,7 @@ foreach my $id (sort keys %uniq1) {
         else  {print OUT11 $read,"\n"; }
 		my @b=split("\t",$Anno{$read});
 		$info[1]=$Gname{$id};
-		for(my $i=2; $i<$Nr; $i++) {
+		for(my $i=2; $i<=$Nr; $i++) {
 		    $info[$i]+=$b[$i-1];
 		}
     }
@@ -132,7 +132,7 @@ foreach my $id (sort keys %uniq3) {
         else  {print OUT31 $read,"\n"; }
 		my @b=split("\t",$Anno{$read});
 		$info[1]=$Gname{$id};
-		for(my $i=2; $i<$Nr; $i++) {
+		for(my $i=2; $i<=$Nr; $i++) {
 		    $info[$i]+=$b[$i-1];
 		}
     }

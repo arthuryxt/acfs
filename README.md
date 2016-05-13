@@ -272,9 +272,10 @@ To see the usage, simply run the perl scripts with no arguments.
     simulate_gtf_for_fusion_circRNA.pl
     get_split_exon_border_biotype_genename.pl
     get_seq_from_agtf.pl
+    get_id_from_simulate_fusion_circRNA_gtf.pl
     ```
 
-7. simulating SE reads from fusion-circRNAs
+7. simulating SE reads from fusion-circRNAs (or PE reads where the insert-size is the read length)
     ```
     simulate_reads_for_fusion_circRNA.pl
     ```

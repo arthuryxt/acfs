@@ -5,7 +5,7 @@ die "Usage: $0  \"parsed.tmp\"   \"MEA\"    \"CBR\"   \"expr\"    \"\(optional\)
 my $filetmp=$ARGV[0];	# parsed.tmp
 my $filein1=$ARGV[1];	# circle_candidates_MEA
 my $filein3=$ARGV[2];	# circle_candidates_CBR
-my $filein4=$ARGV[3];	# UNMAP_expr
+my $filein4=$ARGV[3];	# UNMAP_expr    # if this argument is set to "no", then assume all read have read_count == 1 for the only one sample; so that merging reads is not needed.
 my $MAS=30;
 if (scalar(@ARGV) > 4) {$MAS=$ARGV[4];}
 my %OK;
@@ -81,18 +81,31 @@ while(<IN31>) {
 close IN31;
 
 my %Anno;
-open IN4, $filein4;
-my $header=<IN4>;
-chomp $header;
-my @Header=split("\t",$header);
-my $tmpid=$Header[0];
-$Header[0]=$Header[0]."\tGname";
-$Anno{$tmpid}=join("\t",@Header);
-while(<IN4>) {
-    chomp;
-    my @a=split("\t",$_);
-    $Anno{$a[0]}=join("\t",@a);
+my $header="";
+my @Header;
+if (($filein4 ne "no") and (-e $filein4)) {
+    open IN4, $filein4;
+    $header=<IN4>;
+    chomp $header;
+    @Header=split("\t",$header);
+    my $tmpid=$Header[0];
+    $Header[0]=$Header[0]."\tGname";
+    $Anno{$tmpid}=join("\t",@Header);
+    while(<IN4>) {
+        chomp;
+        my @a=split("\t",$_);
+        $Anno{$a[0]}=join("\t",@a);
+    }
+    close IN4;
 }
+else {
+    $header=join("\t","newid","Sample");
+    @Header=split("\t",$header);
+    $Header[0]=$Header[0]."\tGname";
+    $header=join("\t",@Header);
+    foreach my $id(keys %OK) { $Anno{$id}=join("\t",1,1); }
+}
+
 
 my $Nr=scalar(@Header);
 my $template=0;

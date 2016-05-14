@@ -59,24 +59,35 @@ close IN11;
 
 
 my %Anno;
-open IN4, $filein4;
-my $header=<IN4>;
-chomp $header;
-my @Header=split("\t",$header);
-my $tmpid=$Header[0];
-$Header[0]=$Header[0]."\tGname";
-$Anno{$tmpid}=join("\t",@Header);
-while(<IN4>) {
-    chomp;
-    my @a=split("\t",$_);
-    $Anno{$a[0]}=join("\t",@a);
+my $header="";
+my @Header;
+if (($filein4 ne "no") and (-e $filein4)) {
+    open IN4, $filein4;
+    $header=<IN4>;
+    chomp $header;
+    @Header=split("\t",$header);
+    my $tmpid=$Header[0];
+    $Header[0]=$Header[0]."\tGname";
+    $Anno{$tmpid}=join("\t",@Header);
+    while(<IN4>) {
+        chomp;
+        my @a=split("\t",$_);
+        $Anno{$a[0]}=join("\t",@a);
+    }
+    close IN4;
 }
+else {
+    $header=join("\t","newid","Sample");
+    @Header=split("\t",$header);
+    $Header[0]=$Header[0]."\tGname";
+    $header=join("\t",@Header);
+    foreach my $id(keys %OK) { $Anno{$id}=join("\t",1,1); }
+}
+
 
 my $Nr=scalar(@Header);
 my $template=0;
 for(my $i=2; $i<=$Nr; $i++) {$template=$template."\t0";}
-
-
 
 open OUT1,">".$filein1.".expr";
 open OUT11,">".$filein1.".newid";

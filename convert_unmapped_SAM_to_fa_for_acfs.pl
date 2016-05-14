@@ -236,14 +236,14 @@ if ($enforce eq 1) {
     }
     foreach my $id (keys %uniq2){
         if (!exists $reported{$id}) {
-            print OUT ">Truseq_".$newName."_".$id.".21\n",$uniq1{$id},"\n";
-            print OUT ">Truseq_".$newName."_".$id.".22\n",rev_cpm($uniq1{$id}),"\n";
+            print OUT ">Truseq_".$newName."_".$id.".21\n",$uniq2{$id},"\n";
+            print OUT ">Truseq_".$newName."_".$id.".22\n",rev_cpm($uniq2{$id}),"\n";
         }
         
     }
 }
 else {
-        my %reported;
+    my %reported;
     foreach my $id (keys %uniq1) {
         if (exists $uniq2{$id}) {
             # there is a counterpart, check if the two overlap
@@ -278,8 +278,8 @@ else {
     }
     foreach my $id (keys %uniq2){
         if (!exists $reported{$id}) {
-            print OUT ">".$id.".21\n",$uniq1{$id},"\n";
-            print OUT ">".$id.".22\n",rev_cpm($uniq1{$id}),"\n";
+            print OUT ">".$id.".21\n",$uniq2{$id},"\n";
+            print OUT ">".$id.".22\n",rev_cpm($uniq2{$id}),"\n";
         }
         
     }

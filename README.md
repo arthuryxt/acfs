@@ -62,7 +62,7 @@ Simply unpack the ACFS package.
 # Before running ACFS, a few pre-process
 0. Map the RNA-Seq reads to genome and transcriptom, and extract the unmapped reads. This is **_recommended_** as those mapped reads will NOT span the back-splice sites, and mapping them is a waste of time. 
 
-1. Change fasta/fastq header format
+1. Change fasta/fastq header format to allow processing multiple samples in one run
     This is **_IMPORTANT_** ! ACFS expects a special header format so that multiple samples can be processed in one run. Do change the default header such as ">HWUSI-EAS100R:6:73:941:1973" into ">Truseq_sample1_HWUSI-EAS100R:6:73:941:1973", where the "sample1" is the name of your choice describing the sample. Do the conversion as:
     ```
     perl change_fastq_header.pl SRR650317_1.fasta SRR650317_1.fa Truseq_SRR650317left
@@ -79,6 +79,8 @@ Simply unpack the ACFS package.
     perl Truseq_merge_unique_filelist.pl UNMAP newid filelist
     ```
     UNMAP is the collasped fasta file which will be processed by ACFS, and UNMAP_expr contains the readcount per sequence in all the samples.
+    
+    However, one **can** bypass the previous and this step to run ACFS **sample by sample**. This way, no fasta header reformatting and reads collapsing is needed. For each sample, set the value of "UNMAP" to the name of fasta/fastq in the SPEC_example.txt file, and set the value of "UNMAP_expr" to "no".
     
 3. Build BWA index, using verion 0.73a (currently not support for other versions as the output format changes between versions)
     ```

@@ -1,12 +1,14 @@
 #!/usr/bin/perl -w
 use strict;
 # convert circRNA structure file into raw_gtf format 
-die "Usage: $0  \"circRNA\"  \"split_exon_gtf\"   \"output_basename\"  \"\(optional\) extend N bases\"  " if (@ARGV < 3);
+die "Usage: $0  \"circRNA\"  \"split_exon_gtf\"   \"output_basename\"  \"\(optional\) extend N bases\"  \"\(optional\)do_NOT_fix_border_using_annotation==1_or_0\"  " if (@ARGV < 3);
 my $filein=$ARGV[0];    
 my $gtf=$ARGV[1];       
 my $fileout=$ARGV[2];   
 my $Extend=50;         # 100nt by default.
 if (scalar(@ARGV) > 3) {$Extend=$ARGV[3];}
+my $do_not_fix=1;           # fix the junctional border using annotation
+if (scalar(@ARGV) > 4) {$do_not_fix=$ARGV[4];}
 my $command="rm -f Step4_MEA_finished";
 system($command);
 
@@ -43,6 +45,7 @@ while(<IN>) {
     my @left=split(/\_\_\_/,$a[5]);
     my @right=split(/\_\_\_/,$a[11]);
     if ($left[0] ne $right[0]) { print OUT2 join("\t",@a),"\n"; next;}
+    #if ($a[6] ne $a[12]) { print OUT2 join("\t",@a),"\n"; next;}
     my $start=$left[1] < $right[1] ? $left[1] : $right[1];
     my $end=$left[1] > $right[1] ? $left[1] : $right[1];
     my $Nr=$end - $start +1;
@@ -60,6 +63,16 @@ while(<IN>) {
         my $tmp_e=$b[4];
         if (($tmp_s <= $a[3]) and ($a[3] <= $tmp_e)) { $tmp_s=$a[3]; }
         elsif (($tmp_s <= $a[2]) and ($a[2] <= $tmp_e)) { $tmp_e=$a[2]; }
+        if ($do_not_fix eq 1) {
+            if ($a[20] eq "+") {
+                if ($i eq 1) { $tmp_s=$a[3];}
+                elsif($i eq $Nr) { $tmp_e=$a[2]; }
+            }
+            else {
+                if ($i eq 1) { $tmp_e=$a[2]; }
+                elsif($i eq $Nr) { $tmp_s=$a[3];  }
+            }
+        }
         print OUT join("\t",$b[0],$b[1],$b[2],$tmp_s,$tmp_e,$b[5],$b[6],$b[7],$info),"\n";
         if ($strand eq "+") {
             $ExonL[$i-1]=$tmp_s;
@@ -70,7 +83,7 @@ while(<IN>) {
             $ExonR[$Nr-$i]=$tmp_e+1;
         }
     }
-    if (($ExonL[0] ne $a[3]) or ($ExonR[$Nr-1] ne ($a[2]+1))) {
+    if (($do_not_fix eq 1) and (($ExonL[0] ne $a[3]) or ($ExonR[$Nr-1] ne ($a[2]+1)))) {
         print OUT3 "fix-border\t",join("\t",@a),"\n";
         $ExonL[0]=$a[3];
         $ExonR[$Nr-1]=$a[2]+1;

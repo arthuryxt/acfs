@@ -124,7 +124,6 @@ while(<IN>) {
             }    
 		}
 	}
-    my $Len=length($a[9]);
     my @CIGAR_op=($a[5]=~m/[MSID]/g); 
     my @CIGAR_va=($a[5]=~m/\d+/g);
     my $start=0;
@@ -181,7 +180,7 @@ while(<IN>) {
 		my $SSL=$Ref{$a[2]}-$exp-$readlen+$JUN;
 		print OUT1 join("\t",$a[0],$strand,$a[2],$a[3],$a[5],$length,$NM,$mismatch,$readlen,($Ref{$a[2]}-$exp),$SSL,$SSR,$a[9]),"\n";
 		if (($stranded eq "no") or ($stranded eq $strand)) {
-			if (($SSL <= $a[3]) and ($a[3] <= $SSR) and ($NM <= 5) and (($mismatch/$readlen) < $ER)) {
+			if (($SSL < $a[3]) and ($a[3] < $SSR) and (($a[3] + $readlen) > ($Ref{$a[2]} - $exp)) and ($NM <= 5) and (($mismatch/$readlen) < $ER)) {
 				my $dist1=$a[3] - $SSL;
 				my $dist2=$SSR - $a[3];
 				my $dist=$dist1 < $dist2 ? $dist1 : $dist2;

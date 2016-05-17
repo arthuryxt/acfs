@@ -68,7 +68,6 @@ if (($filein4 ne "no") and (-e $filein4)) {
     @Header=split("\t",$header);
     my $tmpid=$Header[0];
     $Header[0]=$Header[0]."\tGname";
-    $Anno{$tmpid}=join("\t",@Header);
     while(<IN4>) {
         chomp;
         my @a=split("\t",$_);

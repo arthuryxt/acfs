@@ -155,7 +155,7 @@ print OUT $command,"\n";
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5.pl circle_candidates_CBR.sam circle_candidates_CBR.CL circle_candidates_CBR.p1 ".$SPEC{"Seq_len"}." $Junc $ER $stranded";
 print OUT $command,"\n";
 
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5m2.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_CBR ".$SPEC{"UNMAP_expr"}." $MAS";
+$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step5m2.pl unmap.parsed.tmp circle_candidates_MEA circle_candidates_CBR ".$SPEC{"UNMAP_expr"};
 print OUT $command,"\n";
 print OUT "echo \"Step5 caliberate_the_expression_of_circles Finished\" \n\n\n";
 

@@ -21,6 +21,7 @@ system($command);
 
 my %anno;
 my %Gene;
+my %rawanno;
 open IN,$gtf;
 while(<IN>) {
     chomp;
@@ -32,6 +33,7 @@ while(<IN>) {
         my $bin2=int($a[4]/1000)+1;
         my @b=split(/\_\_\_/,$a[8]);
         for(my $i=$bin1; $i<=$bin2; $i++) { $anno{$a[0]}{$i}{$a[3]}{$a[4]}=join("\t",$a[8],$a[7],$a[6],$a[5]); $Gene{$a[0]}{$i}{$a[3]}{$a[4]}=$b[0]; }
+        $rawanno{$b[0]}{$a[8]}=join("\t",@a);
     }
 }
 close IN;
@@ -240,6 +242,37 @@ while (<IN>) {
     my @a=split("\t",$_);
     if (($a[4] <= (0-$mingap)) and ($a[4] >= (0-$maxgap)) and ($a[17] >= $minSSScore)) {
         if (($a[6] eq $a[12]) and ($a[6] ne "na")) {
+            my @left=split(/\_\_\_/,$a[5]);
+            my @right=split(/\_\_\_/,$a[11]);
+            if ($left[0] ne $right[0]) {
+                # make some effort to make left and right annotation on the same gene so that the "_2G" is minimized
+                # ENSG00000256407 and ENSG00000215883 both point to the same gene : CYB5RL
+                my $flag=0;
+                # try to fit the right exon borders to the left Gene_anno first
+                foreach my $exon (keys %{$rawanno{$right[0]}}) {
+                    if ($flag ne 0) { last; }
+                    my @tmp=split("\t",$rawanno{$right[0]}{$exon});
+                    my $dist=abs($a[9] - $tmp[3]) + abs($a[10] - $tmp[4]);
+                    if ($dist < $Extend) {
+                        $flag=$exon;
+                    }
+                }
+                if ($flag eq 0) {
+                    # try to fit the left exon borders to the right Gene_anno first
+                    foreach my $exon (keys %{$rawanno{$left[0]}}) {
+                        if ($flag ne 0) { last; }
+                        my @tmp=split("\t",$rawanno{$right[0]}{$exon});
+                        my $dist=abs($a[15] - $tmp[3]) + abs($a[16] - $tmp[4]);
+                        if ($dist < $Extend) {
+                            $flag=$exon;
+                        }
+                    }
+                    if ($flag ne 0) { $a[11]=$flag; }
+                }
+                else {
+                    $a[5]=$flag;
+                }
+            }
             print OUTT1 join("\t",@a),"\n";
         }
         else {

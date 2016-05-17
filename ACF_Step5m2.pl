@@ -6,7 +6,7 @@ my $filetmp=$ARGV[0];	# parsed.tmp
 my $filein1=$ARGV[1];	# circle_candidates_MEA
 my $filein3=$ARGV[2];	# circle_candidates_CBR
 my $filein4=$ARGV[3];	# UNMAP_expr    # if this argument is set to "no", then assume all read have read_count == 1 for the only one sample; so that merging reads is not needed.
-my $MAS=30;
+my $MAS=0;
 if (scalar(@ARGV) > 4) {$MAS=$ARGV[4];}
 my %OK;
 my %OKinfo;
@@ -90,7 +90,7 @@ if (($filein4 ne "no") and (-e $filein4)) {
     @Header=split("\t",$header);
     my $tmpid=$Header[0];
     $Header[0]=$Header[0]."\tGname";
-    $Anno{$tmpid}=join("\t",@Header);
+    $header=join("\t",@Header);
     while(<IN4>) {
         chomp;
         my @a=split("\t",$_);
@@ -106,28 +106,134 @@ else {
     foreach my $id(keys %OK) { $Anno{$id}=join("\t",1,1); }
 }
 
-
 my $Nr=scalar(@Header);
 my $template=0;
 for(my $i=2; $i<=$Nr; $i++) {$template=$template."\t0";}
 
+# report the minimal number of read from prediction, in case that the second-step alignment missed due to heuristics
+my %total_MEA;
+my %info_MEA;
+open(INtmp1, $filein1.".CL");
+while (<INtmp1>) {
+    chomp;
+    if (m/^>/) {
+        s/^>//;
+        my @a=split(/\_\_\_/,$_);
+        $total_MEA{$a[0]}=1;
+        $info_MEA{$a[0]}=join("\t",@a);
+    }
+}
+close INtmp1;
+open(INtmp11, $filein1);
+while (<INtmp11>) {
+    chomp;
+    my @a=split("\t",$_);
+    if (exists $total_MEA{$a[0]}) {
+        my @c=split(/\,/,$a[-1]);
+        my @info=split("\t",$a[0]."\t".$template);
+        $info[1]=$a[6];
+        for(@c){
+            my $read=$_;
+            if (exists $Anno{$read}) {
+                my @b=split("\t",$Anno{$read});
+                for(my $i=2; $i<=$Nr; $i++) { $info[$i]+=$b[$i-1]; }
+            }
+        }
+        $total_MEA{$a[0]}=join("\t",@info);
+    }
+}
+close INtmp11;
+
+my %total_CBR;
+my %info_CBR;
+open(INtmp3, $filein3.".CL");
+while (<INtmp3>) {
+    chomp;
+    if (m/^>/) {
+        s/^>//;
+        my @a=split(/\_\_\_/,$_);
+        $total_CBR{$a[0]}=1;
+        $info_CBR{$a[0]}=join("\t",@a);
+    }
+}
+close INtmp3;
+open(INtmp31, $filein3);
+while (<INtmp31>) {
+    chomp;
+    my @a=split("\t",$_);
+    if (exists $total_CBR{$a[0]}) {
+        my @c=split(/\,/,$a[-1]);
+        my @info=split("\t",$a[0]."\t".$template);
+        $info[1]=$a[6];
+        if (($a[6] eq "na") and ($a[12] ne "na")) { $info[1]=$a[12]; }
+        for(@c){
+            my $read=$_;
+            if (exists $Anno{$read}) {
+                my @b=split("\t",$Anno{$read});
+                for(my $i=2; $i<=$Nr; $i++) { $info[$i]+=$b[$i-1]; }
+            }
+        }
+        $total_CBR{$a[0]}=join("\t",@info);
+    }
+}
+close INtmp31;
+
+
+#my %expP;
+#my $cntP="unmap.parsed.2pp.S4";
+#if (-e $cntP) {
+#    my $tmpcnt=0;
+#    open(INP, $cntP);
+#    while (<INP>) {
+#        chomp;
+#        my @a=split("\t",$_);
+#        if ((!exists $total_MEA{$a[0]}) and (!exists $total_CBR{$a[0]})) { next; }
+#        my @c=split(/\,/,$a[14]);
+#        my @info=split("\t",$a[0]."\t".$template);
+#        for(@c){
+#            my $read=$_;
+#            if (exists $Anno{$read}) {
+#                my @b=split("\t",$Anno{$read});
+#                for(my $i=2; $i<=$Nr; $i++) { $info[$i]+=$b[$i-1]; }
+#            }
+#        }
+#        $expP{$a[0]}=join("\t",@info);
+#        $tmpcnt++;
+#    }
+#    close INP;
+#    print "reading $tmpcnt lines in unmap.parsed.2pp.S4 finished.\n";
+#}
+
+# report the minimal number of read from prediction, in case that the second-step alignment missed due to heuristics
+
 open OUT1,">".$filein1.".expr";
 open OUT11,">".$filein1.".newid";
 print OUT1 $header,"\n";
-foreach my $id (sort keys %uniq1) {
-    my @a=split("\t",$uniq1{$id});
-    my @info=split("\t",$id."\t".$template);
-    for(@a) {
-		my $read=$_;
-        if (exists $OKinfo{$read}) { print OUT11 $OKinfo{$read},"\n"; }
-        else  {print OUT11 $read,"\n"; }
-		my @b=split("\t",$Anno{$read});
-		$info[1]=$Gname{$id};
-		for(my $i=2; $i<=$Nr; $i++) {
-		    $info[$i]+=$b[$i-1];
-		}
+foreach my $id (sort keys %total_MEA) {
+    if (exists $uniq1{$id}) {
+        my @a=split("\t",$uniq1{$id});
+        my @info=split("\t",$id."\t".$template);
+        for(@a) {
+            my $read=$_;
+            if (exists $OKinfo{$read}) { print OUT11 $OKinfo{$read},"\n"; }
+            else  {print OUT11 $read,"\n"; }
+            my @b=split("\t",$Anno{$read});
+            $info[1]=$Gname{$id};
+            for(my $i=2; $i<=$Nr; $i++) {
+                $info[$i]+=$b[$i-1];
+            }
+        }
+        if (exists $total_MEA{$id}) {
+            my @org=split("\t",$total_MEA{$id});
+            for(my $i=2; $i<=$Nr; $i++) {
+                if ($info[$i] < $org[$i]) { $info[$i]=$org[$i];}
+            }
+        }
+        print OUT1 join("\t",@info),"\n";
     }
-    print OUT1 join("\t",@info),"\n";
+    else{
+        print OUT1 $total_MEA{$id},"\n";
+    }
 }
 close OUT1;
 close OUT11;
@@ -136,21 +242,33 @@ close OUT11;
 open OUT3,">".$filein3.".expr";
 open OUT31,">".$filein3.".newid";
 print OUT3 $header,"\n";
-foreach my $id (sort keys %uniq3) {
-    my @a=split("\t",$uniq3{$id});
-    my @info=split("\t",$id."\t".$template);
-    for(@a) {
-		my $read=$_;
-        if (exists $OKinfo{$read}) { print OUT31 $OKinfo{$read},"\n"; }
-        else  {print OUT31 $read,"\n"; }
-		my @b=split("\t",$Anno{$read});
-		$info[1]=$Gname{$id};
-		for(my $i=2; $i<=$Nr; $i++) {
-		    $info[$i]+=$b[$i-1];
-		}
+foreach my $id (sort keys %total_CBR) {
+    if (exists $uniq3{$id}) {
+        my @a=split("\t",$uniq3{$id});
+        my @info=split("\t",$id."\t".$template);
+        for(@a) {
+            my $read=$_;
+            if (exists $OKinfo{$read}) { print OUT31 $OKinfo{$read},"\n"; }
+            else  {print OUT31 $read,"\n"; }
+            my @b=split("\t",$Anno{$read});
+            $info[1]=$Gname{$id};
+            for(my $i=2; $i<=$Nr; $i++) {
+                $info[$i]+=$b[$i-1];
+            }
+        }
+        if (exists $total_CBR{$id}) {
+            my @org=split("\t",$total_CBR{$id});
+            for(my $i=2; $i<=$Nr; $i++) {
+                if ($info[$i] < $org[$i]) { $info[$i]=$org[$i];}
+            }
+        }
+        print OUT3 join("\t",@info),"\n";
     }
-    print OUT3 join("\t",@info),"\n";
+    else{
+        print OUT3 $total_CBR{$id},"\n";
+    }
 }
+
 close OUT3;
 close OUT31;
 

@@ -29,6 +29,7 @@ while (<IN2>) {
     chomp;
     my @a=split("\t",$_);
     my $Nr=scalar(@a);
+    if ($Nr <= 2) { next; }
     my @b=split(/\_\_\_/,$a[0]);
     if ($a[2]=~m/\D/) { next; }
     my $cnt1=0;

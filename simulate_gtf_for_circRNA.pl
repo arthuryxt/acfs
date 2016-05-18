@@ -54,7 +54,7 @@ foreach my $id (keys %uniq){
 		if ($cnt eq 3) {
 			# self-circulate the 2nd exon
 			my @a=split("\t",$id);
-			my $circ_id=join("_",$a[2],$End[1],$Start[1],($Start[1]-$End[1]));
+			my $circ_id=join("_",$a[2],$End[1],$Start[1],$a[3].abs($Start[1]-$End[1]));
 			if (exists $circ{$circ_id}) {}
 			else {
 				my $tmp_info=join(";","gene_id \"".$circ_id."\"", " transcript_id \"".$circ_id."\""," exon_number \"1\""," gene_name \"".$Gname{$id}."\"");
@@ -71,7 +71,7 @@ foreach my $id (keys %uniq){
 				my $max=$pos1 > $pos2 ? $pos1 : $pos2;
 				if ($min eq 0) {$min++;}
 				if ((0 < $min) and ($min < $max) and ($max < ($cnt-1))) {
-					my $circ_id=join("_",$a[2],$End[$max],$Start[$min],($Start[$min] - $End[$max]));
+					my $circ_id=join("_",$a[2],$End[$max],$Start[$min],$a[3].abs($Start[$min] - $End[$max]));
 					if (exists $circ{$circ_id}) { } #$trail--; }
 					else{
 						my $exoncnt=1;

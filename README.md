@@ -7,7 +7,7 @@ CircRNAs are generated through splicing, or to be precise, back-splicing where t
 
 ACFS first examines and pinpoints the back-splice site from RNA-Seq alignment using a maximal entropy model. The expression of circRNAs is estimated from a second round of alignment to the inferred pseudo circular sequences.
 
-No prior knowledge of gene annotation is needed for ACFS, but reading the coordinates is far less interesting than reading gene names, so circRNAs are annotated using the gene annotation if provided.
+No prior knowledge of gene annotation is needed for circRNA prediection, but reading the coordinates is far less interesting than reading gene names, so circRNAs are annotated using the gene annotation if provided. Also, given annotation, circRNA sequences can be better estimated (especially those contains short exons) and enhance the accuracy of circRNA expression quantification.
 
 ACFS is designed for Single-end RNA-Seq reads. Seeing is believing, we would like to see read directly spanning the back-splice sites. Paired-end data is also supported, albeit with lower sensitivity (if neither of the read ends crosses the back-splice, but the read-pair does).
 

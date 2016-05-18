@@ -4,7 +4,7 @@ die "Usage: $0  \"input1\"   \"input_refFlat\"   \"\(optional\)window\"  \"\(opt
 # check the if input_refFlat track is approximately the same (within the given window) by tracks in input1
 my $filein1=$ARGV[0];
 my $filein2=$ARGV[1];
-my $window=10;
+my $window=0;
 if (scalar(@ARGV) > 2){ $window=$ARGV[2]; }
 my $debug=0;
 if (scalar(@ARGV) > 3){ $debug=$ARGV[3]; }
@@ -62,7 +62,7 @@ while(<IN2>) {
             $selected{$a[1]}=1;
             # output in the same format as input1
             my @tmp=split(/\_/,$a[1]);
-            print OUT22 join("\t",$a[1],$a[2],$tmp[1],$tmp[2],$tmp[3],$a[11],$a[12],$a[13],$a[3],$a[14],$a[15],$a[16],0,$a[15],"newid"),"\n";
+            print OUT22 join("\t",$a[1],$a[2],$tmp[1],$tmp[2],($tmp[2]-$tmp[1]),$a[11],$a[12],$a[13],$a[3],$a[14],$a[15],$a[16],0,$a[15],$a[-1]),"\n";
         }
     }
 }

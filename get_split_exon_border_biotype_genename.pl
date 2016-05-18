@@ -5,7 +5,6 @@ my $filein=$ARGV[0];
 my $fileout=$ARGV[1];   
 my $debug=0;
 if (scalar(@ARGV) > 2) {$debug=$ARGV[2];}
-
 open IN,$filein;
 open OUT,">".$fileout;
 open OUT2,">".$fileout."_gene";
@@ -37,29 +36,29 @@ while(<IN>) {
             $biotype{$id}=$gene_biotype;
             $Gname{$id}=$gene_name;
         }
-        $uniq{$id}{$a[3]}{$a[4]}=1;
+        $uniq{$id}{$a[3]}{$a[4]}=join("\t",@a);
     }
 }
 
 foreach my $id (keys %uniq) {
     my %tmp;
     my %End;
-    foreach my $left (keys %{$uniq{$id}}) {
-        foreach my $right (keys %{$uniq{$id}{$left}}) {
+    foreach my $left (sort {$a <=> $b} keys %{$uniq{$id}}) {
+        foreach my $right (sort {$a <=> $b} keys %{$uniq{$id}{$left}}) {
             $tmp{$right}=1;
             $End{$right}=1;
         }
         $tmp{$left}=2;
     }
     
-    foreach my $left (keys %{$uniq{$id}}) {
-        foreach my $right (keys %{$uniq{$id}{$left}}) {
-            foreach my $test_end (keys %End) {
+    foreach my $left (sort {$a <=> $b} keys %{$uniq{$id}}) {
+        foreach my $right (sort {$a <=> $b} keys %{$uniq{$id}{$left}}) {
+            foreach my $test_end (sort {$a <=> $b} keys %End) {
                 if (($left < $test_end) and ($test_end < $right)) {$End{$test_end}++;}
             }
         }
     }
-    if ($debug) {
+    if ($debug eq 1) {
         my $tmp="";
         foreach my $i (sort{$a <=> $b} keys %tmp) {
             if ($tmp eq "") {$tmp=$i."\t".$tmp{$i};}
@@ -79,11 +78,11 @@ foreach my $id (keys %uniq) {
     my $last=-1;
     my %used;
     foreach my $pos (sort{$a <=> $b} keys %tmp) {
-        if ($debug) { print join("\t",$Nr,$last,$pos),"\n"; }
+        if ($debug eq 1) { print join("\t",$Nr,$last,$pos),"\n"; }
         if ($last eq -1) { $last=$pos; }
         else {
             if (exists $End{$last}) {   # $last could be a right_border, therefore $pos could be a left_border
-                if ($debug) {print $tmp{$last},"\t",$End{$last},"\t",$tmp{$pos},"\n";}
+                if ($debug eq 1) {print $tmp{$last},"\t",$End{$last},"\t",$tmp{$pos},"\n";}
                 if ($End{$last} > 1) {  # $last is middle_border
                     if ($tmp{$pos} eq 2) {  # $pos is a left_border
                         my $p5=($last+1);
@@ -98,7 +97,7 @@ foreach my $id (keys %uniq) {
                 }
             }
             else {  # $last is a left_border; and $pos could be a right_border
-                if ($debug) {print $tmp{$last},"\tNA\t",$tmp{$pos},"\n";}
+                if ($debug eq 1) {print $tmp{$last},"\tNA\t",$tmp{$pos},"\n";}
                 if ($tmp{$pos} eq 2) {  # $pos is a left_border, minus 1 to prepare for the adjacent exon
                     my $p5=($last);
                     my $p3=($pos-1);
@@ -112,13 +111,20 @@ foreach my $id (keys %uniq) {
             }
             $last=$pos;
         }
-        if (($debug) and ($Nr > 0)){
+        if (($debug eq 1) and ($Nr > 0)){
             my $tmp=$border[0];
             for(my $i=1; $i<$Nr; $i++) { $tmp=$tmp."\t".$border[$i];}
             print $tmp,"\n";
         }
     }
-    if ($debug) {print $tmp{$last},"\t",$End{$last},"\n";}
+    if ($debug eq 1) {print $tmp{$last},"\t",$End{$last},"\n";}
+    if (($debug eq 2) and (!exists $End{$last})) {
+        foreach my $left (sort {$a <=> $b} keys %{$uniq{$id}}) {
+            foreach my $right (sort {$a <=> $b} keys %{$uniq{$id}{$left}}) {
+                print join("\t",$id,$left,$right,$uniq{$id}{$left}{$right}),"\n";
+            }
+        }
+    }
     if (($tmp{$last} eq 2) and ($End{$last} eq 1)) { $border[$Nr]=$last."\t".$last; $Nr++; }
     
     my @a=split("\t",$id);

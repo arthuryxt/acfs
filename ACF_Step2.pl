@@ -3,7 +3,7 @@ use strict;
 # check splicing sites for every single circRNA candidates. Require stranded sequencing and the sequencing reads are reverse-complementary to mRNA
 die "Usage: $0  \"CB_splice_folder\"  \"selected_circ_reads\"  \"genome_location\"  \"output basename\"  \"\(optional\) extend N bases\"  \"\(optional\)debug==0\"" if (@ARGV < 4);
 my $DIR=$ARGV[0];		# /home/arthur/CB_splice/
-my $anno=$ARGV[1];      # unmap.parsed.2pp
+my $anno=$ARGV[1];      # unmap.parsed.2pp.S1
 my $genome=$ARGV[2];    # /data/iGenome/mouse/Ensembl/NCBIM37/Sequence/Chromosomes/
 my $fileout=$ARGV[3];
 my $Extend=15;           # 15nt by default. as 3' splice strength need 23nt, 20nt from intron and 3 from exon.

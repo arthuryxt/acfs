@@ -107,7 +107,7 @@ Simply unpack the ACFS package.
 
 
 # Parameters
-There are nine mandatory parameters to run ACFS in a basic mode. Searching for fusion-circRNAs is disabled by default. Please modify the config file "SPEC_example.txt" according to your specific organism, experimental design and sequence specs. The config file "SPEC_example.txt" is a two-column tab-delimited file : <name>\t<value>.
+There are nine mandatory parameters to run ACFS in a basic mode. Searching for fusion-circRNAs is disabled by default. Please modify the config file "SPEC_example.txt" according to your specific organism, experimental design and sequence specs. The config file "SPEC_example.txt" is a two-column tab-delimited file : \<name\>\t\<value\>
 
 Mandatory paramters:
 

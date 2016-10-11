@@ -147,7 +147,7 @@ Optional parameters, the values in below are set as default:
 | trans_splicing_coverage | 0.9 | see Coverage |
 | trans_splicing_minMappingQuality | 0 | see minMappingQuality |
 | trans_splicing_minSplicingScore | 10 | see minSplicingScore |
-| trans_splicing_maxSpan | 2500000 | the maximum distance to complete a fusion circRNA, see maxJump |
+| trans_splicing_maxSpan | 2500000 | the maximum distance between the junctions on the same gene for fusion circRNAs |
 
 
 # run ACFS

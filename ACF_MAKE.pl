@@ -16,7 +16,7 @@ my $bwa_seed_len=16;
 my $bwa_min_score=20;
 my $thread=1;
 my $minJump=100;
-my $maxJump=1000000;
+my $maxJump=2500000;
 my $minSSSum=10;
 my $minSamplecnt=1;
 my $minReadcnt=1;
@@ -32,7 +32,7 @@ my $do_blat_search="no";
 my $ts_coverage=$coverage;
 my $ts_MAS=0;
 my $ts_minSSSum=$minSSSum;
-my $ts_maxSpan=1000000;
+my $ts_maxSpan=$maxJump;
 # check if all parameters are set
 if (!exists $SPEC{"BWA_folder"}) { die "BWA_folder must by specified in the config_file $filein";}
 if (!exists $SPEC{"BWA_genome_Index"}) { die "BWA_genome_Index must by specified in the config_file $filein";}
@@ -109,7 +109,7 @@ else {
 
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step3_MuSeg.pl unmap.parsed.2pp.S3 unmap.parsed.segs.S2";
 print OUT $command,"\n";
-$command="cat unmap.parsed.2pp.S3 unmap.parsed.segs.S2.novel2 > unmap.parsed.2pp.S4";
+$command="cat unmap.parsed.segs.S2.matched unmap.parsed.segs.S2.novel2 > unmap.parsed.2pp.S4";
 print OUT $command,"\n";
 print OUT "echo \"Step3 define_circle Finished\" \n\n\n";
 
@@ -117,7 +117,7 @@ print OUT "echo \"Step3 define_circle Finished\" \n\n\n";
 print OUT "#Step4\n";
 print OUT "date\n";
 print OUT "echo \"Step4 annotate_select_and_make_pseudo_sequences_for_circles Started\" \n";
-$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4.pl unmap.parsed.2pp.S4 ".$SPEC{"Agtf"}." circle_candidates 10 $minJump $maxJump $minSSSum";
+$command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4.pl unmap.parsed.2pp.S4 ".$SPEC{"Agtf"}." circle_candidates 0 $minJump $maxJump $minSSSum";
 print OUT $command,"\n";
 
 $command="perl ".$SPEC{"ACF_folder"}."/ACF_Step4_MEA.pl circle_candidates_MEA ".$SPEC{"Agtf"}." circle_candidates_MEA";
@@ -187,7 +187,7 @@ print OUT "date\n";
 
 if ($search_trans_splicing eq "yes") {
     print OUT "\n#Extra Step\: finding trans_splicing events\n";
-    $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step1.pl ".$SPEC{"CBR_folder"}."/ unmap.parsed.tmp ".$SPEC{"BWA_genome_folder"}."/ unmap.trans.splicing $ts_coverage 15 $ts_MAS";
+    $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step1.pl ".$SPEC{"CBR_folder"}."/ unmap.parsed.tmp ".$SPEC{"BWA_genome_folder"}."/ unmap.trans.splicing $ts_coverage 15 $ts_MAS $maxJump";
     print OUT $command,"\n";
     $command="perl ".$SPEC{"ACF_folder"}."/ACF_trans_splice_step2.pl unmap.trans.splicing ".$SPEC{"BWA_genome_folder"}."/ unmap.trans.splicing ".$SPEC{"Seq_len"}." $ts_minSSSum ".$SPEC{"Agtf"};
     print OUT $command,"\n";

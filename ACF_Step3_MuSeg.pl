@@ -21,7 +21,9 @@ while(<IN1>) {
     else {
         my @a=split("\t",$_);
         $a[1]=~s/chr//;
-        $uniq{$a[1]}{$a[3]}{$a[2]}=$a[0];
+        #$uniq{$a[1]}{$a[3]}{$a[2]}{$a[0]}=join("\t",@a);
+        $uniq{$a[0]}=join("\t",@a);
+        # 14_36777395_36769991_-7404	14	36777395	36769991	-7404	19.04	8.96	10.08	-	2	0	2	-3	0	newid-203725__1
     }
 }
 close IN1;
@@ -37,25 +39,12 @@ while(<IN2>) {
     elsif (m/^#/) {}
     elsif (m/^@/) {}
     else {
+        # 14_36777395_36769991_-7404_|	14_36777395_36769991_-7404	chr14	-	36769991	36777395	36769991	36769991	2	36769991,36777312	36770029,36777395	19.04	10.08	8.96	2	2	0	newid-33948__2,newid-267135__1,newid-334715__1,newid-645333__1,newid-766734__1,newid-836151__1,newid-1019877__1,newid-1243254__1,newid-1366244__1,newid-1628932__1,newid-1819963__1
         my @a=split("\t",$_);
-        $a[2]=~s/chr//;
-        my $f="";
-        if (exists $uniq{$a[2]}) {
-            foreach my $left (sort {$a <=> $b} keys %{$uniq{$a[2]}}) {
-                if (abs($left - $a[4]) <= $window) {
-                    foreach my $right(sort{$a <=> $b} keys %{$uniq{$a[2]}{$left}}) {
-                        if (abs($right - $a[5]) <= $window) {
-                            $f=$left."\t".$right;
-                            last;
-                        }
-                    }
-                    if ($f ne "") { last; }
-                }
-            }
-        }
-        if ($f ne "") {
-            my @b=split("\t",$f);
-            print OUT1 $uniq{$a[2]}{$b[0]}{$b[1]},"\t",join("\t",@a),"\n";
+        if (exists $uniq{$a[1]}) {
+            my @b=split("\t",$uniq{$a[1]});
+            $b[-1]=$b[-1].",".$a[-1];
+            $uniq{$a[1]}=join("\t",@b);
         }
         else {
             print OUT2 join("\t",@a),"\n";
@@ -67,6 +56,9 @@ while(<IN2>) {
     }
 }
 close IN2;
+foreach my $id (sort keys %uniq) {
+    print OUT1 $uniq{$id},"\n";
+}
 
 open(IN3, $filein2.".fa");
 open(OUT3, ">".$filein2.".novel.fa");

@@ -113,15 +113,13 @@ for(my $i=2; $i<=$Nr; $i++) {$template=$template."\t0";}
 # report the minimal number of read from prediction, in case that the second-step alignment missed due to heuristics
 my %total_MEA;
 my %info_MEA;
-open(INtmp1, $filein1.".CL");
+open(INtmp1, $filein1.".refFlat");
 while (<INtmp1>) {
     chomp;
-    if (m/^>/) {
-        s/^>//;
-        my @a=split(/\_\_\_/,$_);
-        $total_MEA{$a[0]}=1;
-        $info_MEA{$a[0]}=join("\t",@a);
-    }
+    if (m/^#/) { next;}
+    my @a=split("\t",$_);
+    $total_MEA{$a[1]}=1;
+    $info_MEA{$a[1]}=join("\t",@a);
 }
 close INtmp1;
 open(INtmp11, $filein1);
@@ -146,15 +144,13 @@ close INtmp11;
 
 my %total_CBR;
 my %info_CBR;
-open(INtmp3, $filein3.".CL");
+open(INtmp3, $filein3.".refFlat");
 while (<INtmp3>) {
     chomp;
-    if (m/^>/) {
-        s/^>//;
-        my @a=split(/\_\_\_/,$_);
-        $total_CBR{$a[0]}=1;
-        $info_CBR{$a[0]}=join("\t",@a);
-    }
+    if (m/^#/) { next;}
+    my @a=split("\t",$_);
+    $total_CBR{$a[1]}=1;
+    $info_CBR{$a[1]}=join("\t",@a);
 }
 close INtmp3;
 open(INtmp31, $filein3);

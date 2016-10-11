@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-die "Usage: $0  \"arthurian gtf\"  \"genome_location\"  \"output basename\" \"\(optional\) extend N bases\"  \"\(optional\)remove_seq_with_N==1\" " if (@ARGV < 3);
+die "Usage: $0  \"arthurian gtf\"  \"genome_location\"  \"output basename\" \"\(optional\) extend N bases\"  \"\(optional\)remove_seq_with_N==0\" " if (@ARGV < 3);
 # store postion of exons and orders.
 # output mRNA sequences together with exon sequences
 # put extended sequences in lower case
@@ -11,7 +11,7 @@ my $genome=$ARGV[1];
 my $fileout=$ARGV[2];
 my $Extend=0;
 if (scalar(@ARGV) > 3) {$Extend=$ARGV[3];}
-my $removeN=1;
+my $removeN=0;
 if (scalar(@ARGV) > 4) {$removeN=$ARGV[4];}
 
 my %uniq;   # store all exons according to chr

@@ -2,11 +2,11 @@
 use strict;
 use strict;
 # check overlapping of known exons border, NOTE that borders must NOT overlap!
-die "Usage: $0  \"defined_clusters\"  \"split_exon_gtf\"   \"output_basename\"  \"\(optional\) extend_N_bases==10\"   \"\(optional\) minimum_BS_distance==100\"   \"\(optional\) maximum_BS_distance==1000000\"    \"\(optional\)minimum_SS_Score==10\"   \"\(DEBUG==1\)\"" if (@ARGV < 3);
+die "Usage: $0  \"defined_clusters\"  \"split_exon_gtf\"   \"output_basename\"  \"\(optional\) extend_N_bases==0\"   \"\(optional\) minimum_BS_distance==100\"   \"\(optional\) maximum_BS_distance==1000000\"    \"\(optional\)minimum_SS_Score==10\"   \"\(DEBUG==1\)\"" if (@ARGV < 3);
 my $filein=$ARGV[0];   
 my $gtf=$ARGV[1];      
 my $fileout=$ARGV[2];   
-my $Extend=10;           # 10nt by default.
+my $Extend=0;           # 0nt by default.
 if (scalar(@ARGV) > 3) {$Extend=$ARGV[3];}
 my $mingap=100;
 if (scalar(@ARGV) > 4) {$mingap=$ARGV[4];}

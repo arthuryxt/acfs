@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 # check splicing sites for 2-segment-diff_chr_strand
-die "Usage: $0   \"CB_splice_folder\"  \"unmap.parsed.tmp\"  \"genome_location\"  \"output basename\"  \"\(optional\)cutoff\"  \"\(optional\) extend N bases\"  \"\(optional\)min_AS\"   \"\(DEBUG set to 1\)\"" if (@ARGV < 4);
+die "Usage: $0   \"CB_splice_folder\"  \"unmap.parsed.tmp\"  \"genome_location\"  \"output basename\"  \"\(optional\)cutoff\"  \"\(optional\) extend N bases\"  \"\(optional\)min_AS\"  \"\(optional\)maxJump\"   \"\(DEBUG set to 1\)\"" if (@ARGV < 4);
 my $DIR=$ARGV[0];		# /home/CB_splice/
 my $anno=$ARGV[1];      # unmap.parsed.tmp
 my $genome=$ARGV[2];    # /data/iGenome/mouse/Ensembl/NCBIM37/Sequence/Chromosomes/
@@ -12,9 +12,11 @@ my $Extend=15;           # 15nt by default. as 3' splice strength need 23nt, 20n
 if (scalar(@ARGV) > 5) {$Extend=$ARGV[5];}
 my $MAS=0;
 if (scalar(@ARGV) > 6) {$MAS=$ARGV[6];}
+my $maxJump=1000000;
+if (scalar(@ARGV) > 7) {$maxJump=$ARGV[7];}
 my $debug=0;
-if (scalar(@ARGV) > 7) {$debug=$ARGV[7];}
-die "Usage: $0   \"CB_splice_folder\"  \"unmap.parsed.tmp\"  \"genome_location\"  \"output basename\"  \"\(optional\)cutoff\"  \"\(optional\) extend N bases\"  \"\(optional\)min_AS\"   \"\(DEBUG set to 1\)\"" if (scalar(@ARGV) > 8);
+if (scalar(@ARGV) > 8) {$debug=$ARGV[8];}
+die "Usage: $0   \"CB_splice_folder\"  \"unmap.parsed.tmp\"  \"genome_location\"  \"output basename\"  \"\(optional\)cutoff\"  \"\(optional\) extend N bases\"  \"\(optional\)min_AS\"  \"\(optional\)maxJump\"   \"\(DEBUG set to 1\)\"" if (scalar(@ARGV) > 9);
 
 my %uniq;
 my %READ;
@@ -38,8 +40,10 @@ while(<IN>) {
     my @a3=split(/,/,$a0[3]);
     my $strand1=substr($a2[1],0,1);
     my $strand2=substr($a3[1],0,1);
+    my $pos1=substr($a2[1],1);
+    my $pos2=substr($a3[1],1);
     my $multi="";
-    if (($a2[0] ne $a3[0]) or ($strand1 ne $strand2)) {
+    if (($a2[0] ne $a3[0]) or ($strand1 ne $strand2) or (abs($pos1 - $pos2) > $maxJump)) {
         if (($a2[3] + $a3[3]) >= (2 * $MAS)) {
             my $info=$a0[2]."\t".$a0[3];
             # process $info
@@ -119,7 +123,11 @@ while(<IN>) {
                 }
                 $cov2=$last - $first + 1;
                 if ($cov1 > 0) { $multi=$a0[0]."\t".$cov2."\t".$cov1."\t".$result; }
+            } else {
+                # hit on the same chromosome
+                # to-be added
             }
+            
         }
     }
     if ($multi eq "") { next; }
@@ -390,6 +398,7 @@ elsif ($f eq -1) {print "\t=======\tno\n";}
 
 foreach my $id (keys %READ) {
 	my @a=split("\t",$READ{$id});
+    if ($debug eq -1) { print $READ{$id},"\n"; }
 	# 0                       1       2       3       4       5			6       7    		8    		9     	10      11		12		13			14			15
     #						  in_len  out_len len     chr     seq_s		len     pos_s	  	pos_e	 	str     chr     seq_s   len     pos_s		pos_e		strand
     # newid-1__1	          75	  75	  75	  11	  0	        39	    118352428	118352466	-	    9	    37	    38	    20365667	20365704	+

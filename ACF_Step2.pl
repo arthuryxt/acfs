@@ -237,10 +237,20 @@ my $f=0;
 foreach my $chr (sort keys %uniq) {
     if ($f eq 1) {print "\t=======\tyes\n";}
     elsif ($f eq -1) {print "\t=======\tno\n";}
-    print "searching chromosome : ".$chr.".fa";
     $f=-1;
+    my $ChrFile=$genome."/".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    $ChrFile=$genome."/chr".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    $ChrFile=$genome."/chromosome".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    if ($f ne -1) {
+        $ChrFile=$f;
+        $f=1;
+    } else {next;}
+    print "searching chromosome : $chr : ".$ChrFile;
     if (exists $reported{$chr}) {next;}
-    open (IN1, $genome."/".$chr.".fa") or next;
+    open (IN1, $ChrFile) or next;
     <IN1>;
     my $SEQ;
     $f=1;

@@ -18,8 +18,8 @@ while(<IN>) {
 	$count++;
 	my $id="tpid-".$count."/1__1";
 	my $chr=$a[0];
-	$chr=~s/chromosome//;
-	$chr=~s/chr//;
+	if ($chr=~m/^chromosome/i) {$chr=~s/chromosome//i;}
+    if ($chr=~m/^chr/i) {$chr=~s/chr//i;}
 	my $SS=100;
 	my $HS=50;
 	my $strand="+";

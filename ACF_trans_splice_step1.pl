@@ -145,9 +145,9 @@ while(<IN>) {
 		$a[8]=$a[8]-1;
 		$a[14]=$a[14]-1;
 		if ($a[4]=~m/^chromosome/i) {$a[4]=~s/chromosome//i;}
-		    if ($a[4]=~m/^chr/i) {$a[4]=~s/chr//i;}
+		if ($a[4]=~m/^chr/i) {$a[4]=~s/chr//i;}
 		if ($a[10]=~m/^chromosome/i) {$a[10]=~s/chromosome//i;}
-		    if ($a[10]=~m/^chr/i) {$a[10]=~s/chr//i;}
+		if ($a[10]=~m/^chr/i) {$a[10]=~s/chr//i;}
 		if ($a[5] < $a[11]) {
 			$uniq{$a[4]}++;
 			$uniq{$a[10]}++;
@@ -395,6 +395,46 @@ foreach my $chr (sort keys %uniq) {
 }
 if ($f eq 1) {print "\t=======\tyes\n";}
 elsif ($f eq -1) {print "\t=======\tno\n";}
+if ($f eq -1) {
+    foreach my $chr (sort keys %uniq) {
+        #if (length($chr) > 3) {next}
+        if ($f eq 1) {print "\t=======\tyes\n";}
+        elsif ($f eq -1) {print "\t=======\tno\n";}
+        print "searching chromosome : chr".$chr.".fa";
+        $f=-1;
+        if (exists $reported{$chr}) {next;}
+        open (IN1, $genome."/chr".$chr.".fa") or next;
+        <IN1>;
+        my $SEQ;
+        $f=1;
+        $reported{$chr}=1;
+        while(<IN1>) {chomp; $SEQ=$SEQ.$_;}
+        $genome{$chr}=$SEQ;
+        close IN1;
+    }
+    if ($f eq 1) {print "\t=======\tyes\n";}
+    elsif ($f eq -1) {print "\t=======\tno\n";}
+}
+if ($f eq -1) {
+    foreach my $chr (sort keys %uniq) {
+        #if (length($chr) > 3) {next}
+        if ($f eq 1) {print "\t=======\tyes\n";}
+        elsif ($f eq -1) {print "\t=======\tno\n";}
+        print "searching chromosome : chromosome".$chr.".fa";
+        $f=-1;
+        if (exists $reported{$chr}) {next;}
+        open (IN1, $genome."/chromosome".$chr.".fa") or next;
+        <IN1>;
+        my $SEQ;
+        $f=1;
+        $reported{$chr}=1;
+        while(<IN1>) {chomp; $SEQ=$SEQ.$_;}
+        $genome{$chr}=$SEQ;
+        close IN1;
+    }
+    if ($f eq 1) {print "\t=======\tyes\n";}
+    elsif ($f eq -1) {print "\t=======\tno\n";}
+}
 
 foreach my $id (keys %READ) {
 	my @a=split("\t",$READ{$id});

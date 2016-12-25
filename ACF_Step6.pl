@@ -31,7 +31,10 @@ while (<IN2>) {
     my $Nr=scalar(@a);
     if ($Nr <= 2) { next; }
     my @b=split(/\_\_\_/,$a[0]);
-    if ($a[2]=~m/\D/) { next; }
+    my $skip=0;
+    for(my $i=2; $i<$Nr; $i++) { if ($a[$i]=~m/\D/) { $skip++ }  }
+    if ($skip > 0) { next; }
+    #if ($a[2]=~m/\D/) { next; }
     my $cnt1=0;
     my $cnt2=0;
     for(my $i=2; $i<$Nr; $i++) {

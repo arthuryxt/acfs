@@ -20,93 +20,97 @@ my $command="rm -f Step2_MuSeg_finished";
 system($command);
 
 my %uniq;
-open IN1,$filein2;
-while(<IN1>) {
-    chomp;
-    my @a=split("\t",$_);
-    my $id=$a[7]."___".$a[8];
-    if ($a[6] eq "+") {
-	# 5' of exon
-	my $base=int($a[3]/1000);
-	if (exists $uniq{$a[0]}{$base}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base}{$a[3]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base}{$a[3]}=join("___",10,$id); }
-	
-	if (exists $uniq{$a[0]}{$base+1}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base+1}{$a[3]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base+1}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base+1}{$a[3]}=join("___",10,$id); }
-	
-	if (exists $uniq{$a[0]}{$base-1}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base-1}{$a[3]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base-1}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base-1}{$a[3]}=join("___",10,$id); }
-	# 3' of exon
-	$base=int($a[4]/1000);
-	if (exists $uniq{$a[0]}{$base}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base}{$a[4]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base}{$a[4]}=join("___",1,$id); }
-	
-	if (exists $uniq{$a[0]}{$base+1}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base+1}{$a[4]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base+1}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base+1}{$a[4]}=join("___",1,$id); }
-	
-	if (exists $uniq{$a[0]}{$base-1}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base-1}{$a[4]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base-1}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base-1}{$a[4]}=join("___",1,$id); }
+if ($filein2 ne "no") {
+    open IN1,$filein2;
+    while(<IN1>) {
+        chomp;
+        my @a=split("\t",$_);
+        if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
+        if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
+        my $id=$a[7]."___".$a[8];
+        if ($a[6] eq "+") {
+        # 5' of exon
+        my $base=int($a[3]/1000);
+        if (exists $uniq{$a[0]}{$base}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base}{$a[3]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base}{$a[3]}=join("___",10,$id); }
+        
+        if (exists $uniq{$a[0]}{$base+1}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base+1}{$a[3]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base+1}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base+1}{$a[3]}=join("___",10,$id); }
+        
+        if (exists $uniq{$a[0]}{$base-1}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base-1}{$a[3]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base-1}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base-1}{$a[3]}=join("___",10,$id); }
+        # 3' of exon
+        $base=int($a[4]/1000);
+        if (exists $uniq{$a[0]}{$base}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base}{$a[4]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base}{$a[4]}=join("___",1,$id); }
+        
+        if (exists $uniq{$a[0]}{$base+1}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base+1}{$a[4]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base+1}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base+1}{$a[4]}=join("___",1,$id); }
+        
+        if (exists $uniq{$a[0]}{$base-1}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base-1}{$a[4]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base-1}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base-1}{$a[4]}=join("___",1,$id); }
+        }
+        else {
+        # 5' of exon
+        my $base=int($a[4] / 1000);
+        if (exists $uniq{$a[0]}{$base}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base}{$a[4]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base}{$a[4]}=join("___",10,$id); }
+        
+        if (exists $uniq{$a[0]}{$base+1}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base+1}{$a[4]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base+1}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base+1}{$a[4]}=join("___",10,$id); }
+        
+        if (exists $uniq{$a[0]}{$base-1}{$a[4]}) {
+            my @b=split("___",$uniq{$a[0]}{$base-1}{$a[4]});
+            if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base-1}{$a[4]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base-1}{$a[4]}=join("___",10,$id); }
+        # 3' of exon
+        $base=int($a[3] / 1000);
+        if (exists $uniq{$a[0]}{$base}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base}{$a[3]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base}{$a[3]}=join("___",1,$id); }
+        
+        if (exists $uniq{$a[0]}{$base+1}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base+1}{$a[3]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base+1}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base+1}{$a[3]}=join("___",1,$id); }
+        
+        if (exists $uniq{$a[0]}{$base-1}{$a[3]}) {
+            my @b=split("___",$uniq{$a[0]}{$base-1}{$a[3]});
+            if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base-1}{$a[3]}=join("___",@b)}
+        }
+        else { $uniq{$a[0]}{$base-1}{$a[3]}=join("___",1,$id); }
+        }
     }
-    else {
-	# 5' of exon
-	my $base=int($a[4] / 1000);
-	if (exists $uniq{$a[0]}{$base}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base}{$a[4]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base}{$a[4]}=join("___",10,$id); }
-	
-	if (exists $uniq{$a[0]}{$base+1}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base+1}{$a[4]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base+1}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base+1}{$a[4]}=join("___",10,$id); }
-	
-	if (exists $uniq{$a[0]}{$base-1}{$a[4]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base-1}{$a[4]});
-	    if ($b[0] < 10) { $b[0]+=10; $uniq{$a[0]}{$base-1}{$a[4]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base-1}{$a[4]}=join("___",10,$id); }
-	# 3' of exon
-	$base=int($a[3] / 1000);
-	if (exists $uniq{$a[0]}{$base}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base}{$a[3]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base}{$a[3]}=join("___",1,$id); }
-	
-	if (exists $uniq{$a[0]}{$base+1}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base+1}{$a[3]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base+1}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base+1}{$a[3]}=join("___",1,$id); }
-	
-	if (exists $uniq{$a[0]}{$base-1}{$a[3]}) {
-	    my @b=split("___",$uniq{$a[0]}{$base-1}{$a[3]});
-	    if (($b[0] < 1) or ($b[0] eq 10)) { $b[0]+=1; $uniq{$a[0]}{$base-1}{$a[3]}=join("___",@b)}
-	}
-	else { $uniq{$a[0]}{$base-1}{$a[3]}=join("___",1,$id); }
-    }
+    close IN1;
 }
-close IN1;
 
 open IN2,$filein1;
 open OUT1,">".$fileout.".S1.pp";
@@ -118,6 +122,8 @@ my %Overlap;
 while(<IN2>) {
     chomp;
     my @a=split("\t",$_);
+    if ($a[4]=~m/^chromosome/i) {$a[4]=~s/chromosome//i;}
+    if ($a[4]=~m/^chr/i) {$a[4]=~s/chr//i;}
 	$READ{$a[0]}=join("\t",$_);
     my $NR=scalar(@a)/5;
     my %strand;
@@ -831,10 +837,20 @@ my $f=0;
 foreach my $chr (sort keys %candy) {
     if ($f eq 1) {print "\t=======\tyes\n";}
     elsif ($f eq -1) {print "\t=======\tno\n";}
-    print "searching chromosome : ".$chr.".fa";
     $f=-1;
+    my $ChrFile=$genome."/".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    $ChrFile=$genome."/chr".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    $ChrFile=$genome."/chromosome".$chr.".fa";
+    if (-e $ChrFile) { $f=$ChrFile; }
+    if ($f ne -1) {
+        $ChrFile=$f;
+        $f=1;
+    } else {next;}
+    print "searching chromosome : $chr : ".$ChrFile;
     if (exists $reported{$chr}) {next;}
-    open (IN1, $genome."/".$chr.".fa") or next;
+    open (IN1, $ChrFile) or next;
     <IN1>;
     my $SEQ;
     $f=1;

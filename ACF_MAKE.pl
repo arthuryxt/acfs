@@ -39,7 +39,7 @@ if (!exists $SPEC{"BWA_genome_Index"}) { die "BWA_genome_Index must by specified
 if (!exists $SPEC{"BWA_genome_folder"}) { die "BWA_genome_folder must by specified in the config_file $filein";}
 if (!exists $SPEC{"ACF_folder"}) { die "ACF_folder must by specified in the config_file $filein";}
 if (!exists $SPEC{"CBR_folder"}) { die "CBR_folder must by specified in the config_file $filein";}
-if (!exists $SPEC{"Agtf"}) { die "Agtf must by specified in the config_file $filein";}
+if (!exists $SPEC{"Agtf"}) { $SPEC{"Agtf"}="no"; print "No gene annotation file is provided. Providing annotation would enhance the performance.\n";}
 if (!exists $SPEC{"UNMAP"}) { die "UNMAP must by specified in the config_file $filein";}
 if (!exists $SPEC{"UNMAP_expr"}) { die "UNMAP_expr must by specified in the config_file $filein";}
 if (!exists $SPEC{"Seq_len"}) { die "Seq_len must by specified in the config_file $filein";}

@@ -42,6 +42,10 @@ while (<IN0>) {
     chomp;
     my @a=split("\t",$_);
     if ($a[16] < $minSS) { next; }
+    if ($a[4]=~m/^chromosome/i) {$a[4]=~s/chromosome//i;}
+    if ($a[4]=~m/^chr/i) {$a[4]=~s/chr//i;}
+    if ($a[10]=~m/^chromosome/i) {$a[10]=~s/chromosome//i;}
+    if ($a[10]=~m/^chr/i) {$a[10]=~s/chr//i;}
     # 0             1   2   3   4   5   6   7           8           9   10  11  12  13          14          15  16      17      18      19  20  21  22  23  24
     # newid-12__8   100 100 100 7   0   60  44246987    44247046    -   6   60  40  44200126    44200165    -   20.28   10.24   10.04   +   4   3   1   3   3
     # AGCAGGGGATCCTACTGGCCAGTCTATCCTGTCGACTTGCTTGGAGAATTCATCTAGTACCCACATGAATACAGCTGTGAGGCTCCGGCCCAACCAGTCA
@@ -132,25 +136,44 @@ if ($f eq 1) {print "\t=======\tyes\n";}
 elsif ($f eq -1) {print "\t=======\tno\n";}
 if ($f eq -1) {
     foreach my $chr (sort keys %CHR) {
-    #if (length($chr) > 3) {next}
+        #if (length($chr) > 3) {next}
+        if ($f eq 1) {print "\t=======\tyes\n";}
+        elsif ($f eq -1) {print "\t=======\tno\n";}
+        print "searching chromosome : chr".$chr.".fa";
+        $f=-1;
+        if (exists $reported{$chr}) {next;}
+        open (IN1, $genome."/chr".$chr.".fa") or next;
+        <IN1>;
+        my $SEQ;
+        $f=1;
+        $reported{$chr}=1;
+        while(<IN1>) {chomp; $SEQ=$SEQ.$_;}
+        $genome{$chr}=$SEQ;
+        close IN1;
+    }
     if ($f eq 1) {print "\t=======\tyes\n";}
     elsif ($f eq -1) {print "\t=======\tno\n";}
-    print "searching chromosome : chr".$chr.".fa";
-    $f=-1;
-    if (exists $reported{$chr}) {next;}
-    open (IN1, $genome."/chr".$chr.".fa") or next;
-    <IN1>;
-    my $SEQ;
-    $f=1;
-    $reported{$chr}=1;
-    while(<IN1>) {chomp; $SEQ=$SEQ.$_;}
-	$genome{$chr}=$SEQ;
-    close IN1;
 }
-if ($f eq 1) {print "\t=======\tyes\n";}
-elsif ($f eq -1) {print "\t=======\tno\n";}
+if ($f eq -1) {
+    foreach my $chr (sort keys %CHR) {
+        #if (length($chr) > 3) {next}
+        if ($f eq 1) {print "\t=======\tyes\n";}
+        elsif ($f eq -1) {print "\t=======\tno\n";}
+        print "searching chromosome : chromosome".$chr.".fa";
+        $f=-1;
+        if (exists $reported{$chr}) {next;}
+        open (IN1, $genome."/chromosome".$chr.".fa") or next;
+        <IN1>;
+        my $SEQ;
+        $f=1;
+        $reported{$chr}=1;
+        while(<IN1>) {chomp; $SEQ=$SEQ.$_;}
+        $genome{$chr}=$SEQ;
+        close IN1;
+    }
+    if ($f eq 1) {print "\t=======\tyes\n";}
+    elsif ($f eq -1) {print "\t=======\tno\n";}
 }
-
 
 open(OUT1, ">".$fileout.".tsloci");
 open(OUT2, ">".$fileout.".tsloci.fa");

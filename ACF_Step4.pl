@@ -22,21 +22,23 @@ system($command);
 my %anno;
 my %Gene;
 my %rawanno;
-open IN,$gtf;
-while(<IN>) {
-    chomp;
-    my @a=split("\t",$_);
-    if ($a[2] eq "exon") {
-        if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
-        if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
-        my $bin1=int($a[3]/1000);
-        my $bin2=int($a[4]/1000)+1;
-        my @b=split(/\_\_\_/,$a[8]);
-        for(my $i=$bin1; $i<=$bin2; $i++) { $anno{$a[0]}{$i}{$a[3]}{$a[4]}=join("\t",$a[8],$a[7],$a[6],$a[5]); $Gene{$a[0]}{$i}{$a[3]}{$a[4]}=$b[0]; }
-        $rawanno{$b[0]}{$a[8]}=join("\t",@a);
+if ($gtf ne "no") {
+    open IN,$gtf;
+    while(<IN>) {
+        chomp;
+        my @a=split("\t",$_);
+        if ($a[2] eq "exon") {
+            if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
+            if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
+            my $bin1=int($a[3]/1000);
+            my $bin2=int($a[4]/1000)+1;
+            my @b=split(/\_\_\_/,$a[8]);
+            for(my $i=$bin1; $i<=$bin2; $i++) { $anno{$a[0]}{$i}{$a[3]}{$a[4]}=join("\t",$a[8],$a[7],$a[6],$a[5]); $Gene{$a[0]}{$i}{$a[3]}{$a[4]}=$b[0]; }
+            $rawanno{$b[0]}{$a[8]}=join("\t",@a);
+        }
     }
+    close IN;
 }
-close IN;
 
 open IN,$filein;
 open OUT,">".$fileout;

@@ -9,18 +9,20 @@ my $command="rm -f Step4_CBR_finished";
 system($command);
 
 my %anno;
-open IN,$gtf;
-while(<IN>) {
-    chomp;
-    my @a=split("\t",$_);
-    if ($a[2] eq "exon") {
-        if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
-        if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
-        my @b=split(/\_\_\_/,$a[8]);
-        $anno{$a[0]}{$a[6]}{$a[3]."\t".$a[4]}=join("\t",@a);
+if ($gtf ne "no") {
+    open IN,$gtf;
+    while(<IN>) {
+        chomp;
+        my @a=split("\t",$_);
+        if ($a[2] eq "exon") {
+            if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
+            if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
+            my @b=split(/\_\_\_/,$a[8]);
+            $anno{$a[0]}{$a[6]}{$a[3]."\t".$a[4]}=join("\t",@a);
+        }
     }
+    close IN;
 }
-close IN;
 
 sub getname ($) {
     my $Rank=shift;
@@ -40,8 +42,8 @@ while(<IN>) {
     chomp;
     if (m/^#/) { next; }
     my @a=split("\t",$_);
-    $a[1]=~s/chromosome//i;
-    $a[1]=~s/chr//i;
+    if ($a[1]=~m/^chromosome/i) {$a[1]=~s/chromosome//i;}
+    if ($a[1]=~m/^chr/i) {$a[1]=~s/chr//i;}
     my $left=$a[2] < $a[3] ? $a[2] : $a[3];
     my $right=$a[2] > $a[3] ? $a[2] : $a[3];
     $rank++;

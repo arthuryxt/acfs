@@ -20,7 +20,8 @@ while(<IN1>) {
     elsif (m/^@/) {}
     else {
         my @a=split("\t",$_);
-        $a[1]=~s/chr//;
+        if ($a[1]=~m/^chromosome/i) {$a[1]=~s/chromosome//i;}
+        if ($a[1]=~m/^chr/i) {$a[1]=~s/chr//i;}
         #$uniq{$a[1]}{$a[3]}{$a[2]}{$a[0]}=join("\t",@a);
         $uniq{$a[0]}=join("\t",@a);
         # 14_36777395_36769991_-7404	14	36777395	36769991	-7404	19.04	8.96	10.08	-	2	0	2	-3	0	newid-203725__1

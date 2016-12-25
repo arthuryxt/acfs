@@ -14,20 +14,22 @@ system($command);
 
 my %anno;
 my %ExonNr;
-open IN,$gtf;
-while(<IN>) {
-    chomp;
-    my @a=split("\t",$_);
-    if ($a[2] eq "exon") {
-        if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
-        if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
-        my @b=split(/\_\_\_/,$a[8]);
-        #     ENSG   exon_number
-        $anno{$b[0]}{$b[1]}=join("\t",@a);
-        $ExonNr{$b[0]}=$b[2];
+if ($gtf ne "no") {
+    open IN,$gtf;
+    while(<IN>) {
+        chomp;
+        my @a=split("\t",$_);
+        if ($a[2] eq "exon") {
+            if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
+            if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
+            my @b=split(/\_\_\_/,$a[8]);
+            #     ENSG   exon_number
+            $anno{$b[0]}{$b[1]}=join("\t",@a);
+            $ExonNr{$b[0]}=$b[2];
+        }
     }
+    close IN;
 }
-close IN;
 
 open IN,$filein;
 open OUT,">".$fileout.".gtf";               # close zero-based. This means that the first 100 bases of a chromosome are represented as [0,99]
@@ -40,8 +42,8 @@ while(<IN>) {
     chomp;
     if (m/^#/) { next; }
     my @a=split("\t",$_);
-    if ($a[0]=~m/^chromosome/i) {$a[0]=~s/chromosome//i;}
-    if ($a[0]=~m/^chr/i) {$a[0]=~s/chr//i;}
+    if ($a[1]=~m/^chromosome/i) {$a[1]=~s/chromosome//i;}
+    if ($a[1]=~m/^chr/i) {$a[1]=~s/chr//i;}
     my @left=split(/\_\_\_/,$a[5]);
     my @right=split(/\_\_\_/,$a[11]);
     if ($left[0] ne $right[0]) { print OUT2 join("\t",@a),"\n"; next;}

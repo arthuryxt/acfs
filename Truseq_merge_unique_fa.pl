@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 use strict;
 # unique "Truseq" style fasta/fq reads, output fasta
-die "Usage: $0    \"output_name\"    \"header_name\"    \"fasta-1\"    \"fasta-2 ...\"" if (@ARGV < 3);
+die "Usage: $0    \"output_name\"    \"fasta-1\"    \"fasta-2 ...\"" if (@ARGV < 2);
 my $fileout=$ARGV[0];
-my $header=$ARGV[1];    # batch1 for example
+my $header="newid";    # batch1 for example
 my $fileNR=scalar(@ARGV);
 my %uniq;
 my %SEQ;
@@ -11,7 +11,7 @@ my %Sample;
 
 open OUT,">".$fileout;
 open OUT2,">".$fileout."_expr";
-for(my $i=2; $i<$fileNR; $i++) {
+for(my $i=1; $i<$fileNR; $i++) {
     open IN,$ARGV[$i];
     print "reading file : ",$ARGV[$i],"\n";
     while(<IN>) {
@@ -73,7 +73,7 @@ for(my $i=2; $i<$fileNR; $i++) {
 
 
 my $count=0;
-my $info="newid";
+my $info=$header;
 foreach my $sample (sort keys %Sample) {
     $info=$info."\t".$sample;
 }

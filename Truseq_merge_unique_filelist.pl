@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 use strict;
 # unique "Truseq" style fasta/fq reads, output fasta
-die "Usage: $0    \"output_name\"    \"header_name\"    \"fasta-file-list\"   " if (@ARGV < 3);
+die "Usage: $0    \"output_name\"   \"fasta-file-list\"   " if (@ARGV < 2);
 my $fileout=$ARGV[0];
-my $header=$ARGV[1];    # newid or batch1 for example
-my $filelist=$ARGV[2];
+my $header="newid";    # newid or batch1 for example
+my $filelist=$ARGV[1];
 my %uniq;
 my %SEQ;
 my %Sample;
@@ -21,6 +21,7 @@ while(<INf>) {
 close INf;
 for(my $i=0; $i<$fileNR; $i++) {
     open IN,$Filelist[$i];
+    if ($Filelist[$i] eq "") { next;}
     print "reading file : ",$Filelist[$i],"\n";
     while(<IN>) {
         chomp;
@@ -81,7 +82,7 @@ for(my $i=0; $i<$fileNR; $i++) {
 
 
 my $count=0;
-my $info="newid";
+my $info=$header;
 foreach my $sample (sort keys %Sample) {
     $info=$info."\t".$sample;
 }

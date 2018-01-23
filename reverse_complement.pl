@@ -8,7 +8,7 @@ open(IN, $filein) or die "Cannot open input_fasta file : $filein";
 open(OUT,">".$fileout);
 while (<IN>) {
     chomp;
-    if(m/^>/){
+    if(m/^>/||m/^@/){
         s/^>//;
         print OUT ">rc".$_,"\n";
     }

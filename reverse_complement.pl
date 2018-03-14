@@ -11,6 +11,9 @@ while (<IN>) {
     if(m/^>/){
         s/^>//;
         print OUT ">rc".$_,"\n";
+    }elsif(m/^@/){
+        s/^>//;
+        print OUT "\@rc".$_,"\n";
     }
     else{
         my $t=$_;
